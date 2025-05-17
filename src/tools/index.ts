@@ -16,15 +16,15 @@ export function configureTools(server: McpServer, repoRoot: string): void {
   // Tool to append stubs to vibe.yaml
   growSpecTool(server, repoRoot);
   
-  // Tool to run pytest
+  // // Tool to run pytest
   runTestsTool(server, repoRoot);
   
-  // Tool to format code with ruff and black
+  // // Tool to format code with ruff and black
   formatCodeTool(server, repoRoot);
   
-  // Tool to search code with ripgrep
+  // // Tool to search code with ripgrep
   searchCodeTool(server, repoRoot);
   
-  // Tool to commit changes via git
+  // // Tool to commit changes via git
   commitChangesTool(server, repoRoot);
 } 

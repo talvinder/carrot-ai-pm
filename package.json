@@ -1,0 +1,39 @@
+{
+  "name": "carrot-ai-pm",
+  "version": "1.0.0",
+  "main": "dist/src/server.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/src/server.js",
+    "dev": "tsx src/server.ts",
+    "watch": "tsc -w",
+    "start:sse": "PORT=3000 node dist/src/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "mcp",
+    "carrot",
+    "fastapi"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.11.4",
+    "@types/express": "^5.0.2",
+    "@types/node": "^22.15.18",
+    "@types/node-fetch": "^2.6.12",
+    "child_process": "^1.0.2",
+    "express": "^5.1.0",
+    "fs": "^0.0.1-security",
+    "glob": "^11.0.2",
+    "node-fetch": "^2.7.0",
+    "path": "^0.12.7",
+    "simple-git": "^3.27.0",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3",
+    "zod": "^3.24.4"
+  },
+  "description": "Carrot MCP server for FastAPI codebase"
+}

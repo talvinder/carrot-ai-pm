@@ -1,0 +1,173 @@
+{
+  "endpoint": "/api/boards/{boardId}/columns/{columnId}",
+  "summary": "Endpoint for getting, updating, and deleting a specific column",
+  "createdAt": "2025-05-19T19:30:11.023Z",
+  "features": [
+    {
+      "name": "multi-task-specs",
+      "description": "Support for defining complex tasks with multiple subtasks and dependencies",
+      "details": {
+        "structure": {
+          "tasks": "Array of task objects that can be executed in sequence or parallel",
+          "dependencies": "Graph representation of inter-task dependencies",
+          "globalParams": "Parameters shared across all tasks in the spec"
+        },
+        "implementation": {
+          "fileFormat": "Extended JSON format with task definitions",
+          "scheduler": "Task execution with dependency resolution",
+          "validation": "Schema-based validation of task structures"
+        }
+      }
+    },
+    {
+      "name": "task-metadata",
+      "description": "Extended metadata for task tracking, visualization, and management",
+      "details": {
+        "fields": {
+          "owner": "Person responsible for the task",
+          "priority": "Task importance (low, medium, high, critical)",
+          "estimatedTime": "Expected completion time",
+          "status": "Current execution state",
+          "tags": "Categorization and filtering"
+        },
+        "capabilities": {
+          "filtering": "Query tasks by metadata",
+          "reporting": "Generate status reports based on metadata",
+          "visualization": "Create dependency and status charts"
+        }
+      }
+    },
+    {
+      "name": "refine-spec-tool",
+      "description": "Tool for iteratively refining and updating task specifications",
+      "details": {
+        "operations": {
+          "add": "Add new tasks to existing specs",
+          "update": "Modify existing task definitions",
+          "remove": "Remove tasks from specs",
+          "reorder": "Change task execution order"
+        },
+        "intelligence": {
+          "suggestions": "Smart suggestions for task refinement",
+          "validation": "Verify spec integrity after changes",
+          "history": "Track changes to specs over time"
+        }
+      }
+    },
+    {
+      "name": "user-notifications",
+      "description": "System for notifying users about task status changes and events",
+      "details": {
+        "channels": {
+          "inApp": "Notifications within the Carrot UI",
+          "email": "Email notifications for important events",
+          "webhook": "Custom webhook integration"
+        },
+        "events": {
+          "taskCompletion": "When tasks are completed",
+          "taskFailure": "When tasks encounter errors",
+          "progressUpdates": "Periodic updates on long-running tasks",
+          "approvalRequests": "When user input is needed"
+        },
+        "preferences": {
+          "perUser": "User-specific notification settings",
+          "perProject": "Project-level notification rules"
+        }
+      }
+    },
+    {
+      "name": "documentation",
+      "description": "Comprehensive documentation for Carrot features and APIs",
+      "details": {
+        "components": {
+          "userGuide": "End-user documentation for Carrot",
+          "developerDocs": "API documentation for developers",
+          "tutorials": "Step-by-step guides for common workflows",
+          "examples": "Sample projects and configurations"
+        },
+        "formats": {
+          "markdown": "Source format for all documentation",
+          "html": "Generated web documentation",
+          "pdf": "Downloadable reference guides"
+        },
+        "infrastructure": {
+          "docSite": "Documentation website with search",
+          "versionControl": "Documentation versioned with code",
+          "contributionFlow": "Process for community contributions"
+        }
+      }
+    }
+  ],
+  "implementation": {
+    "phases": [
+      {
+        "name": "Design",
+        "tasks": [
+          "Create detailed schemas for multi-task specs",
+          "Design API endpoints for task metadata",
+          "Plan user notification system architecture",
+          "Outline documentation structure"
+        ],
+        "deliverables": [
+          "Design documents",
+          "API specifications",
+          "Schema definitions"
+        ]
+      },
+      {
+        "name": "Implementation",
+        "tasks": [
+          "Develop core multi-task spec functionality",
+          "Build refine-spec tool backend",
+          "Implement notification system",
+          "Create documentation infrastructure"
+        ],
+        "deliverables": [
+          "Functional code",
+          "Initial documentation",
+          "Test suite"
+        ]
+      },
+      {
+        "name": "Testing",
+        "tasks": [
+          "Unit test all new components",
+          "Integration testing of notification system",
+          "User testing of refine-spec tool",
+          "Documentation review"
+        ],
+        "deliverables": [
+          "Test reports",
+          "User feedback",
+          "Documentation updates"
+        ]
+      },
+      {
+        "name": "Deployment",
+        "tasks": [
+          "Release new features",
+          "Publish documentation",
+          "Monitor system performance",
+          "Gather user feedback"
+        ],
+        "deliverables": [
+          "Production release",
+          "Public documentation",
+          "Feedback analysis"
+        ]
+      }
+    ],
+    "dependencies": {
+      "external": [
+        "MCP SDK",
+        "Documentation generation tools",
+        "Notification service"
+      ],
+      "internal": [
+        "Existing task execution system",
+        "User management",
+        "API gateway"
+      ]
+    }
+  }
+}

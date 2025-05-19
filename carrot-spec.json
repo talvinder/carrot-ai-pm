@@ -1,0 +1,6 @@
+{
+  "endpoint": "/api/boards/{boardId}/labels",
+  "summary": "Endpoint for managing labels that can be applied to cards",
+  "createdAt": "2025-05-19T19:30:45.644Z",
+  "specFile": "specs/-api-boards-{boardId}-labels-2025-05-19T19-30-45.644Z.json"
+}

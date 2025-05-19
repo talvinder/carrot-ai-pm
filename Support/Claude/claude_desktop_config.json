@@ -1,0 +1,19 @@
+{
+    "mcpServers": {
+        "weather": {
+            "command": "uv",
+            "args": [
+                "--directory",
+                "/Users/raramuri/Projects/carrot-ai-pm/weather",
+                "run",
+                "weather.py"
+            ]
+        },
+        "Carrot": {
+            "command": "node",
+            "args": [
+                "/Users/raramuri/Projects/carrot-ai-pm/dist/src/server.js"
+            ]
+        }
+    }
+  }

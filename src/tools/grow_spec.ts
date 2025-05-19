@@ -14,33 +14,49 @@ export function growSpecTool(server: McpServer, repoRoot: string): void {
     'grow_spec',
     {
       endpoint: z.string().min(1),
-      summary: z.string().min(1)
+      summary: z.string().min(1),
+      projectDir: z.string().optional().describe('Target project directory where specs should be generated. If not provided, will use current directory.')
     },
-    async ({ endpoint, summary }: { endpoint: string; summary: string }) => {
+    async ({ endpoint, summary, projectDir }: { endpoint: string; summary: string; projectDir?: string }) => {
       try {
-        console.log(`grow_spec tool called with endpoint: ${endpoint}, summary: ${summary}`);
+        console.log(`grow_spec tool called with endpoint: ${endpoint}, summary: ${summary}, projectDir: ${projectDir}`);
         
-        // Look for vibe.yaml in common locations
-        const possiblePaths = [
-          path.join(repoRoot, 'carrot', 'vibe.yaml'),
-          path.join(repoRoot, 'vibe.yaml'),
-          path.join(repoRoot, 'carrot', 'api', 'vibe.yaml'),
-          path.join(repoRoot, 'carrot', 'docs', 'vibe.yaml'),
-          path.join(repoRoot, 'docs', 'vibe.yaml'),
-          path.join(repoRoot, 'specs', 'vibe.yaml')
-        ];
+        // Ensure we never use absolute paths that start at root
+        const baseDir = process.cwd();
+        console.log('Base directory:', baseDir);
         
-        let vibeYamlPath = possiblePaths.find(p => fs.existsSync(p));
-        let projectRoot = repoRoot;
+        // Use provided project directory or current working directory
+        const targetDir = projectDir ? 
+          (path.isAbsolute(projectDir) ? 
+            // If absolute path provided, ensure it's under the user's home directory
+            (projectDir.startsWith('/Users') ? projectDir : path.join(baseDir, projectDir)) :
+            // If relative path, resolve from current directory
+            path.resolve(baseDir, projectDir)
+          ) : 
+          baseDir;
         
-        // If vibe.yaml exists, use its directory as the project root
-        if (vibeYamlPath) {
-          projectRoot = path.dirname(vibeYamlPath);
+        console.log(`Using target directory: ${targetDir}`);
+
+        // Safety check - ensure we're not trying to write to root or system directories
+        if (targetDir === '/' || targetDir.startsWith('/usr') || targetDir.startsWith('/etc')) {
+          throw new Error('Cannot write to system directories');
+        }
+
+        // Ensure target directory exists
+        if (!fs.existsSync(targetDir)) {
+          fs.mkdirSync(targetDir, { recursive: true });
+        }
+        
+        // Look for vibe.yaml in the target directory
+        const vibeYamlPath = path.join(targetDir, 'vibe.yaml');
+        
+        // Create or read vibe.yaml
+        let existingYaml;
+        if (fs.existsSync(vibeYamlPath)) {
+          existingYaml = yaml.load(fs.readFileSync(vibeYamlPath, 'utf8')) as any;
         } else {
-          // If vibe.yaml doesn't exist, create it in the root
-          vibeYamlPath = path.join(repoRoot, 'vibe.yaml');
           // Create initial OpenAPI spec
-          const initialSpec = {
+          existingYaml = {
             openapi: '3.0.0',
             info: {
               title: 'API Specification',
@@ -48,12 +64,7 @@ export function growSpecTool(server: McpServer, repoRoot: string): void {
             },
             paths: {}
           };
-          fs.writeFileSync(vibeYamlPath, yaml.dump(initialSpec));
-          projectRoot = repoRoot;
         }
-        
-        // Read existing YAML
-        const existingYaml = yaml.load(fs.readFileSync(vibeYamlPath, 'utf8')) as any;
         
         // Ensure paths object exists
         if (!existingYaml.paths) {
@@ -85,14 +96,23 @@ export function growSpecTool(server: McpServer, repoRoot: string): void {
           };
         }
         
+        // Create specs directory in the target directory
+        const specDir = path.join(targetDir, 'specs');
+        try {
+          if (!fs.existsSync(specDir)) {
+            fs.mkdirSync(specDir, { recursive: true, mode: 0o755 });
+          }
+        } catch (err: any) {
+          console.error('Error creating specs directory:', err);
+          throw new Error(`Failed to create specs directory: ${err.message}`);
+        }
+        
         // Write updated YAML
-        fs.writeFileSync(vibeYamlPath, yaml.dump(existingYaml));
-        
-        // Create specs directory in the same directory as vibe.yaml
-        const specDir = path.join(projectRoot, 'specs');
-        
-        if (!fs.existsSync(specDir)) {
-          fs.mkdirSync(specDir, { recursive: true });
+        try {
+          fs.writeFileSync(vibeYamlPath, yaml.dump(existingYaml), { mode: 0o644 });
+        } catch (err: any) {
+          console.error('Error writing vibe.yaml:', err);
+          throw new Error(`Failed to write vibe.yaml: ${err.message}`);
         }
         
         // Generate timestamp and create spec file
@@ -104,13 +124,18 @@ export function growSpecTool(server: McpServer, repoRoot: string): void {
         const spec = generateDetailedSpec(endpoint, summary);
         
         // Write the spec to file
-        fs.writeFileSync(specFile, JSON.stringify(spec, null, 2));
+        try {
+          fs.writeFileSync(specFile, JSON.stringify(spec, null, 2), { mode: 0o644 });
+        } catch (err: any) {
+          console.error('Error writing spec file:', err);
+          throw new Error(`Failed to write spec file: ${err.message}`);
+        }
         
         return {
           content: [
             { 
               type: 'text', 
-              text: `Updated OpenAPI spec in ${path.relative(projectRoot, vibeYamlPath)} and created detailed spec in ${path.relative(projectRoot, specFile)}` 
+              text: `Updated OpenAPI spec in ${path.relative(targetDir, vibeYamlPath)} and created detailed spec in ${path.relative(targetDir, specFile)}` 
             }
           ]
         };

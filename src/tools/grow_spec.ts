@@ -2,6 +2,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as yaml from 'js-yaml';
 
 /**
  * Configure grow_spec tool for adding entries to the spec repository
@@ -19,16 +20,83 @@ export function growSpecTool(server: McpServer, repoRoot: string): void {
       try {
         console.log(`grow_spec tool called with endpoint: ${endpoint}, summary: ${summary}`);
         
-        // Create a unique identifier for this file (used in the filename to avoid overwriting)
-        const timestamp = new Date().toISOString().replace(/:/g, '-');
-        const specDir = path.join(repoRoot, 'specs');
+        // Look for vibe.yaml in common locations
+        const possiblePaths = [
+          path.join(repoRoot, 'carrot', 'vibe.yaml'),
+          path.join(repoRoot, 'vibe.yaml'),
+          path.join(repoRoot, 'carrot', 'api', 'vibe.yaml'),
+          path.join(repoRoot, 'carrot', 'docs', 'vibe.yaml'),
+          path.join(repoRoot, 'docs', 'vibe.yaml'),
+          path.join(repoRoot, 'specs', 'vibe.yaml')
+        ];
         
-        // Create directory if it doesn't exist
+        let vibeYamlPath = possiblePaths.find(p => fs.existsSync(p));
+        let projectRoot = repoRoot;
+        
+        // If vibe.yaml exists, use its directory as the project root
+        if (vibeYamlPath) {
+          projectRoot = path.dirname(vibeYamlPath);
+        } else {
+          // If vibe.yaml doesn't exist, create it in the root
+          vibeYamlPath = path.join(repoRoot, 'vibe.yaml');
+          // Create initial OpenAPI spec
+          const initialSpec = {
+            openapi: '3.0.0',
+            info: {
+              title: 'API Specification',
+              version: '1.0.0'
+            },
+            paths: {}
+          };
+          fs.writeFileSync(vibeYamlPath, yaml.dump(initialSpec));
+          projectRoot = repoRoot;
+        }
+        
+        // Read existing YAML
+        const existingYaml = yaml.load(fs.readFileSync(vibeYamlPath, 'utf8')) as any;
+        
+        // Ensure paths object exists
+        if (!existingYaml.paths) {
+          existingYaml.paths = {};
+        }
+        
+        // Add or update the endpoint
+        const pathKey = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+        if (!existingYaml.paths[pathKey]) {
+          existingYaml.paths[pathKey] = {};
+        }
+        
+        // Add GET method as default if no methods exist
+        if (Object.keys(existingYaml.paths[pathKey]).length === 0) {
+          existingYaml.paths[pathKey].get = {
+            summary,
+            responses: {
+              '200': {
+                description: 'Successful response',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object'
+                    }
+                  }
+                }
+              }
+            }
+          };
+        }
+        
+        // Write updated YAML
+        fs.writeFileSync(vibeYamlPath, yaml.dump(existingYaml));
+        
+        // Create specs directory in the same directory as vibe.yaml
+        const specDir = path.join(projectRoot, 'specs');
+        
         if (!fs.existsSync(specDir)) {
           fs.mkdirSync(specDir, { recursive: true });
         }
         
-        // Each spec gets its own file with a timestamp to avoid overwriting
+        // Generate timestamp and create spec file
+        const timestamp = new Date().toISOString().replace(/:/g, '-');
         const safeEndpoint = endpoint.replace(/[\/\\:]/g, '-');
         const specFile = path.join(specDir, `${safeEndpoint}-${timestamp}.json`);
         
@@ -37,24 +105,12 @@ export function growSpecTool(server: McpServer, repoRoot: string): void {
         
         // Write the spec to file
         fs.writeFileSync(specFile, JSON.stringify(spec, null, 2));
-        console.log(`Wrote spec to: ${path.relative(repoRoot, specFile)}`);
         
-        // For backward compatibility, also update (overwrite) a top-level carrot-spec.json file
-        const minimalSpec = {
-          endpoint,
-          summary,
-          createdAt: spec.createdAt ?? new Date().toISOString(),
-          specFile: path.relative(repoRoot, specFile)
-        };
-
-        const mainSpecPath = path.join(repoRoot, 'carrot-spec.json');
-        fs.writeFileSync(mainSpecPath, JSON.stringify(minimalSpec, null, 2));
-
         return {
           content: [
             { 
               type: 'text', 
-              text: `Spec for '${endpoint}' written to ${path.relative(repoRoot, specFile)}` 
+              text: `Updated OpenAPI spec in ${path.relative(projectRoot, vibeYamlPath)} and created detailed spec in ${path.relative(projectRoot, specFile)}` 
             }
           ]
         };

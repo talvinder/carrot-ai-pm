@@ -415,7 +415,7 @@ export function growSpecTool(server: McpServer, repoRoot: string): void {
         const specFile = path.join(specDir, `${safeEndpoint}-${timestamp}.json`);
         
         // Generate a detailed spec based on the endpoint and summary (using existing function)
-        const spec = generateDetailedSpec(endpoint, summary);
+        const spec = generateDetailedSpec(endpoint, summary, repoRoot);
         
         // Write the spec to file with better error handling
         try {
@@ -456,382 +456,619 @@ export function growSpecTool(server: McpServer, repoRoot: string): void {
 /**
  * Generate a detailed specification based on the endpoint and summary
  */
-function generateDetailedSpec(endpoint: string, summary: string): any {
-  // Extract feature keywords from the summary
-  const hasMultiTaskSpecs = /multi-task|multiple tasks|subtasks/i.test(summary);
-  const hasMetadata = /metadata|task metadata|data fields/i.test(summary);
-  const hasRefineSpec = /refine[_ -]spec|spec refinement/i.test(summary);
-  const hasNotifications = /notification|alerts|user notice/i.test(summary);
-  const hasDocumentation = /documentation|docs|guides/i.test(summary);
+function generateDetailedSpec(endpoint: string, summary: string, repoRoot: string): any {
+  // Analyze project context for domain intelligence
+  const context = analyzeProjectContext(repoRoot, endpoint, summary);
   
-  // Build features array based on detected keywords
-  const features = [];
+  // Generate domain-specific specification
+  if (context.domain === 'spotify') {
+    return generateSpotifySpec(endpoint, summary, context);
+  } else if (context.domain === 'user_management') {
+    return generateUserManagementSpec(endpoint, summary, context);
+  } else if (context.domain === 'api') {
+    return generateAPISpec(endpoint, summary, context);
+  }
   
-  if (hasMultiTaskSpecs) {
-    features.push({
-      "name": "multi-task-specs",
-      "description": "Support for defining complex tasks with multiple subtasks and dependencies",
-      "details": {
-        "structure": {
-          "tasks": "Array of task objects that can be executed in sequence or parallel",
-          "dependencies": "Graph representation of inter-task dependencies",
-          "globalParams": "Parameters shared across all tasks in the spec"
-        },
-        "implementation": {
-          "fileFormat": "Extended JSON format with task definitions",
-          "scheduler": "Task execution with dependency resolution",
-          "validation": "Schema-based validation of task structures"
-        }
+  // Fallback to context-aware generic spec
+  return generateContextAwareSpec(endpoint, summary, context);
+}
+
+/**
+ * Analyze project context to understand domain and existing patterns
+ */
+function analyzeProjectContext(repoRoot: string, endpoint: string, summary: string): any {
+  const context: {
+    domain: string;
+    patterns: string[];
+    existingSchemas: string[];
+    projectType: string;
+    features: string[];
+  } = {
+    domain: 'generic',
+    patterns: [],
+    existingSchemas: [],
+    projectType: 'unknown',
+    features: []
+  };
+
+  try {
+    // Analyze endpoint and summary for domain hints
+    const endpointLower = endpoint.toLowerCase();
+    const summaryLower = summary.toLowerCase();
+    
+    // Domain detection
+    if (endpointLower.includes('spotify') || endpointLower.includes('playlist') || 
+        summaryLower.includes('spotify') || summaryLower.includes('playlist') || summaryLower.includes('music')) {
+      context.domain = 'spotify';
+    } else if (endpointLower.includes('user') || endpointLower.includes('auth') ||
+               summaryLower.includes('user') || summaryLower.includes('authentication')) {
+      context.domain = 'user_management';
+    } else if (endpointLower.includes('api') || summaryLower.includes('api')) {
+      context.domain = 'api';
+    }
+
+    // Look for existing project structure
+    const packageJsonPath = path.join(repoRoot, 'package.json');
+    if (fs.existsSync(packageJsonPath)) {
+      const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+      
+      // Detect project type
+      if (packageJson.dependencies?.next) {
+        context.projectType = 'nextjs';
+        context.patterns.push('nextjs_api');
       }
-    });
-  }
-  
-  if (hasMetadata) {
-    features.push({
-      "name": "task-metadata",
-      "description": "Extended metadata for task tracking, visualization, and management",
-      "details": {
-        "fields": {
-          "owner": "Person responsible for the task",
-          "priority": "Task importance (low, medium, high, critical)",
-          "estimatedTime": "Expected completion time",
-          "status": "Current execution state",
-          "tags": "Categorization and filtering"
-        },
-        "capabilities": {
-          "filtering": "Query tasks by metadata",
-          "reporting": "Generate status reports based on metadata",
-          "visualization": "Create dependency and status charts"
-        }
+      if (packageJson.dependencies?.zod) {
+        context.patterns.push('zod_validation');
       }
-    });
-  }
-  
-  if (hasRefineSpec) {
-    features.push({
-      "name": "refine-spec-tool",
-      "description": "Tool for iteratively refining and updating task specifications",
-      "details": {
-        "operations": {
-          "add": "Add new tasks to existing specs",
-          "update": "Modify existing task definitions",
-          "remove": "Remove tasks from specs",
-          "reorder": "Change task execution order"
-        },
-        "intelligence": {
-          "suggestions": "Smart suggestions for task refinement",
-          "validation": "Verify spec integrity after changes",
-          "history": "Track changes to specs over time"
-        }
+      if (packageJson.dependencies?.['spotify-web-api-node']) {
+        context.patterns.push('spotify_integration');
       }
-    });
-  }
-  
-  if (hasNotifications) {
-    features.push({
-      "name": "user-notifications",
-      "description": "System for notifying users about task status changes and events",
-      "details": {
-        "channels": {
-          "inApp": "Notifications within the Carrot UI",
-          "email": "Email notifications for important events",
-          "webhook": "Custom webhook integration"
-        },
-        "events": {
-          "taskCompletion": "When tasks are completed",
-          "taskFailure": "When tasks encounter errors",
-          "progressUpdates": "Periodic updates on long-running tasks",
-          "approvalRequests": "When user input is needed"
-        },
-        "preferences": {
-          "perUser": "User-specific notification settings",
-          "perProject": "Project-level notification rules"
+    }
+
+    // Look for existing API routes and types
+    const apiDir = path.join(repoRoot, 'src/app/api');
+    if (fs.existsSync(apiDir)) {
+      context.patterns.push('api_routes');
+      
+      // Scan for existing patterns
+      const scanForPatterns = (dir: string) => {
+        try {
+          const items = fs.readdirSync(dir);
+          for (const item of items) {
+            const itemPath = path.join(dir, item);
+            if (fs.statSync(itemPath).isDirectory()) {
+              scanForPatterns(itemPath);
+            } else if (item === 'route.ts' || item === 'types.ts') {
+              const content = fs.readFileSync(itemPath, 'utf8');
+              
+              if (content.includes('x-user-id')) {
+                context.patterns.push('user_auth_header');
+              }
+              if (content.includes('NextRequest') && content.includes('NextResponse')) {
+                context.patterns.push('nextjs_handlers');
+              }
+              if (content.includes('playlist')) {
+                context.features.push('playlist_management');
+              }
+              if (content.includes('tracks')) {
+                context.features.push('track_management');
+              }
+            }
+          }
+        } catch (err) {
+          // Ignore scanning errors
         }
-      }
-    });
-  }
-  
-  if (hasDocumentation) {
-    features.push({
-      "name": "documentation",
-      "description": "Comprehensive documentation for Carrot features and APIs",
-      "details": {
-        "components": {
-          "userGuide": "End-user documentation for Carrot",
-          "developerDocs": "API documentation for developers",
-          "tutorials": "Step-by-step guides for common workflows",
-          "examples": "Sample projects and configurations"
-        },
-        "formats": {
-          "markdown": "Source format for all documentation",
-          "html": "Generated web documentation",
-          "pdf": "Downloadable reference guides"
-        },
-        "infrastructure": {
-          "docSite": "Documentation website with search",
-          "versionControl": "Documentation versioned with code",
-          "contributionFlow": "Process for community contributions"
+      };
+      scanForPatterns(apiDir);
+    }
+
+    // Look for existing vibe.yaml to understand current API structure
+    const vibeYamlPath = path.join(repoRoot, 'vibe.yaml');
+    if (fs.existsSync(vibeYamlPath)) {
+      try {
+        const vibeContent = yaml.load(fs.readFileSync(vibeYamlPath, 'utf8')) as any;
+        if (vibeContent?.paths) {
+          context.existingSchemas = Object.keys(vibeContent.paths);
+          
+          // Analyze existing endpoints for patterns
+          for (const path of Object.keys(vibeContent.paths)) {
+            if (path.includes('playlist')) {
+              context.features.push('playlist_api');
+            }
+            if (path.includes('user')) {
+              context.features.push('user_api');
+            }
+          }
         }
+      } catch (err) {
+        console.warn('Error parsing vibe.yaml:', err);
       }
-    });
+    }
+
+  } catch (error) {
+    console.warn('Error analyzing project context:', error);
   }
-  
-  // If no specific features were detected, include all by default
-  if (features.length === 0) {
-    return generateFullSpec(endpoint, summary);
-  }
-  
-  // Create implementation phases based on detected features
-  const implementationPhases = generateImplementationPhases(features);
-  
-  // Return the complete spec
-  return {
+
+  return context;
+}
+
+/**
+ * Generate Spotify-specific specification
+ */
+function generateSpotifySpec(endpoint: string, summary: string, context: any): any {
+  const spec = {
     endpoint,
     summary,
+    domain: 'spotify',
     createdAt: new Date().toISOString(),
-    features,
-    implementation: implementationPhases
+    context: {
+      projectType: context.projectType,
+      patterns: context.patterns,
+      features: context.features
+    }
+  };
+
+  if (endpoint.includes('playlist')) {
+    return {
+      ...spec,
+      specification: {
+        purpose: 'Spotify playlist management endpoint',
+        functionality: {
+          core: 'Manage user playlists with full CRUD operations',
+          features: [
+            'Create playlists with metadata (name, description, public/private)',
+            'Update playlist properties and track lists',
+            'Retrieve playlists with user authorization',
+            'Delete playlists with ownership validation',
+            'Track management within playlists'
+          ],
+          authentication: 'User-based via x-user-id header',
+          authorization: 'Users can only access their own playlists'
+        },
+        dataModel: {
+          playlist: {
+            id: 'Unique playlist identifier (UUID)',
+            name: 'Playlist name (max 100 chars)',
+            description: 'Optional description (max 300 chars)',
+            public: 'Boolean - public visibility',
+            collaborative: 'Boolean - collaborative editing',
+            userId: 'Owner user ID',
+            tracks: 'Array of track objects',
+            createdAt: 'ISO timestamp',
+            updatedAt: 'ISO timestamp'
+          },
+          track: {
+            id: 'Spotify track ID',
+            name: 'Track name',
+            artist: 'Artist name',
+            duration: 'Duration in seconds',
+            addedAt: 'When added to playlist'
+          }
+        },
+        apiOperations: generateSpotifyAPIOperations(endpoint),
+        validation: {
+          input: [
+            'Playlist name required and non-empty',
+            'Description max 300 characters',
+            'User ID must be valid',
+            'Track IDs must be valid Spotify IDs'
+          ],
+          business: [
+            'Users can only modify their own playlists',
+            'Playlist names must be unique per user',
+            'Maximum 10,000 tracks per playlist'
+          ]
+        },
+        errorHandling: {
+          400: 'Invalid request data (validation errors)',
+          401: 'Missing or invalid authentication',
+          403: 'Unauthorized access to playlist',
+          404: 'Playlist not found',
+          409: 'Playlist name conflict',
+          429: 'Rate limit exceeded',
+          500: 'Internal server error'
+        }
+      },
+      implementation: generateSpotifyImplementationPlan(context),
+      testing: generateSpotifyTestPlan(endpoint)
+    };
+  }
+
+  // Default Spotify spec for other endpoints
+  return {
+    ...spec,
+    specification: {
+      purpose: `Spotify ${summary}`,
+      functionality: {
+        core: summary,
+        features: ['Integration with Spotify Web API', 'User authentication', 'Error handling'],
+        authentication: context.patterns.includes('user_auth_header') ? 'User-based via x-user-id header' : 'To be determined',
+        authorization: 'User-specific access control'
+      }
+    },
+    implementation: generateSpotifyImplementationPlan(context),
+    testing: generateGenericTestPlan(endpoint, summary)
   };
 }
 
 /**
- * Generate implementation phases based on detected features
+ * Generate Spotify API operations based on endpoint
  */
-function generateImplementationPhases(features: any[]): any {
-  const featureNames = features.map(f => f.name);
+function generateSpotifyAPIOperations(endpoint: string): any {
+  const operations: { [key: string]: any } = {};
   
-  // Design phase tasks
-  const designTasks = [];
-  if (featureNames.includes('multi-task-specs')) {
-    designTasks.push("Create detailed schemas for multi-task specs");
-  }
-  if (featureNames.includes('task-metadata')) {
-    designTasks.push("Design API endpoints for task metadata");
-  }
-  if (featureNames.includes('user-notifications')) {
-    designTasks.push("Plan user notification system architecture");
-  }
-  if (featureNames.includes('documentation')) {
-    designTasks.push("Outline documentation structure");
-  }
-  
-  // Implementation phase tasks
-  const implementationTasks = [];
-  if (featureNames.includes('multi-task-specs')) {
-    implementationTasks.push("Develop core multi-task spec functionality");
-  }
-  if (featureNames.includes('refine-spec-tool')) {
-    implementationTasks.push("Build refine-spec tool backend");
-  }
-  if (featureNames.includes('user-notifications')) {
-    implementationTasks.push("Implement notification system");
-  }
-  if (featureNames.includes('documentation')) {
-    implementationTasks.push("Create documentation infrastructure");
-  }
-  
-  // Testing phase tasks
-  const testingTasks = ["Unit test all new components"];
-  if (featureNames.includes('user-notifications')) {
-    testingTasks.push("Integration testing of notification system");
-  }
-  if (featureNames.includes('refine-spec-tool')) {
-    testingTasks.push("User testing of refine-spec tool");
-  }
-  if (featureNames.includes('documentation')) {
-    testingTasks.push("Documentation review");
+  if (endpoint.includes('{') && endpoint.includes('}')) {
+    // Individual resource endpoint
+    operations['GET'] = {
+      purpose: 'Retrieve specific playlist',
+      parameters: ['playlistId (path)', 'x-user-id (header)'],
+      response: 'Full playlist object with tracks',
+      authorization: 'Must be playlist owner'
+    };
+    
+    operations['PATCH'] = {
+      purpose: 'Update playlist properties',
+      parameters: ['playlistId (path)', 'x-user-id (header)', 'update data (body)'],
+      response: 'Updated playlist object',
+      authorization: 'Must be playlist owner',
+      notes: 'Partial updates supported'
+    };
+    
+    operations['DELETE'] = {
+      purpose: 'Delete playlist',
+      parameters: ['playlistId (path)', 'x-user-id (header)'],
+      response: '204 No Content',
+      authorization: 'Must be playlist owner'
+    };
+  } else {
+    // Collection endpoint
+    operations['GET'] = {
+      purpose: 'List user playlists',
+      parameters: ['x-user-id (header)', 'page (query)', 'limit (query)'],
+      response: 'Paginated list of playlists',
+      authorization: 'User-specific playlists only'
+    };
+    
+    operations['POST'] = {
+      purpose: 'Create new playlist',
+      parameters: ['x-user-id (header)', 'playlist data (body)'],
+      response: 'Created playlist object',
+      authorization: 'Creates for authenticated user'
+    };
   }
   
-  // Deployment phase tasks
-  const deploymentTasks = [
-    "Release new features",
-    "Publish documentation",
-    "Monitor system performance",
-    "Gather user feedback"
-  ];
-  
+  return operations;
+}
+
+/**
+ * Generate Spotify implementation plan
+ */
+function generateSpotifyImplementationPlan(context: any): any {
+  const plan = {
+    phases: [
+      {
+        name: 'Data Layer',
+        tasks: [
+          'Define playlist and track data models',
+          'Set up database schema (if using local storage)',
+          'Implement data access layer'
+        ],
+        deliverables: ['Data models', 'Database schema', 'Repository pattern']
+      },
+      {
+        name: 'API Layer',
+        tasks: [
+          'Implement route handlers',
+          'Add request validation',
+          'Implement authentication middleware',
+          'Add error handling'
+        ],
+        deliverables: ['Route handlers', 'Validation schemas', 'Middleware']
+      },
+      {
+        name: 'Integration',
+        tasks: [
+          'Integrate with Spotify Web API (if needed)',
+          'Implement user authorization',
+          'Add logging and monitoring'
+        ],
+        deliverables: ['API integration', 'Auth system', 'Monitoring']
+      },
+      {
+        name: 'Testing & Documentation',
+        tasks: [
+          'Unit tests for all components',
+          'Integration tests',
+          'API documentation',
+          'User guides'
+        ],
+        deliverables: ['Test suite', 'Documentation', 'Examples']
+      }
+    ],
+    technologies: generateTechnologyStack(context),
+    dependencies: [
+      'spotify-web-api-node (if using Spotify API)',
+      'zod (for validation)',
+      'next (for API routes)',
+      'uuid (for ID generation)'
+    ]
+  };
+
+  return plan;
+}
+
+/**
+ * Generate technology stack based on context
+ */
+function generateTechnologyStack(context: any): any {
+  const stack: { [key: string]: any } = {
+    runtime: 'Node.js',
+    framework: context.projectType === 'nextjs' ? 'Next.js API Routes' : 'Express.js',
+    validation: context.patterns.includes('zod_validation') ? 'Zod' : 'Joi or custom validation',
+    database: 'To be determined (PostgreSQL, MongoDB, or in-memory)',
+    authentication: context.patterns.includes('user_auth_header') ? 'Custom header-based' : 'JWT or session-based'
+  };
+
+  if (context.patterns.includes('spotify_integration')) {
+    stack.external_apis = 'Spotify Web API';
+  }
+
+  return stack;
+}
+
+/**
+ * Generate Spotify test plan
+ */
+function generateSpotifyTestPlan(endpoint: string): any {
+  const testPlan = {
+    unitTests: [
+      'Playlist data model validation',
+      'Route handler logic',
+      'Authentication middleware',
+      'Error handling functions'
+    ],
+    integrationTests: [
+      'End-to-end playlist CRUD operations',
+      'User authorization flows',
+      'Error response handling',
+      'Data persistence verification'
+    ],
+    testScenarios: [] as any[]
+  };
+
+  if (endpoint.includes('playlist')) {
+    testPlan.testScenarios = [
+      {
+        scenario: 'Create playlist success',
+        given: 'Valid user and playlist data',
+        when: 'POST request to create playlist',
+        then: 'Playlist created with 201 status'
+      },
+      {
+        scenario: 'Update playlist unauthorized',
+        given: 'User tries to update another user\'s playlist',
+        when: 'PATCH request with different user ID',
+        then: '403 Forbidden response'
+      },
+      {
+        scenario: 'Get playlist not found',
+        given: 'Non-existent playlist ID',
+        when: 'GET request for playlist',
+        then: '404 Not Found response'
+      },
+      {
+        scenario: 'Delete playlist success',
+        given: 'User owns the playlist',
+        when: 'DELETE request for playlist',
+        then: 'Playlist deleted with 204 status'
+      }
+    ];
+  }
+
+  return testPlan;
+}
+
+/**
+ * Generate user management specification
+ */
+function generateUserManagementSpec(endpoint: string, summary: string, context: any): any {
+  return {
+    endpoint,
+    summary,
+    domain: 'user_management',
+    createdAt: new Date().toISOString(),
+    specification: {
+      purpose: `User management: ${summary}`,
+      functionality: {
+        core: 'User account and authentication management',
+        features: ['User registration', 'Authentication', 'Profile management', 'Authorization'],
+        security: 'Password hashing, session management, role-based access'
+      }
+    },
+    implementation: generateUserImplementationPlan(context),
+    testing: generateGenericTestPlan(endpoint, summary)
+  };
+}
+
+/**
+ * Generate API specification
+ */
+function generateAPISpec(endpoint: string, summary: string, context: any): any {
+  return {
+    endpoint,
+    summary,
+    domain: 'api',
+    createdAt: new Date().toISOString(),
+    specification: {
+      purpose: `API endpoint: ${summary}`,
+      functionality: {
+        core: summary,
+        features: ['RESTful operations', 'Request validation', 'Error handling'],
+        patterns: context.patterns
+      }
+    },
+    implementation: generateAPIImplementationPlan(context),
+    testing: generateGenericTestPlan(endpoint, summary)
+  };
+}
+
+/**
+ * Generate context-aware specification
+ */
+function generateContextAwareSpec(endpoint: string, summary: string, context: any): any {
+  return {
+    endpoint,
+    summary,
+    domain: context.domain,
+    createdAt: new Date().toISOString(),
+    context: {
+      projectType: context.projectType,
+      patterns: context.patterns,
+      features: context.features,
+      existingSchemas: context.existingSchemas
+    },
+    specification: {
+      purpose: summary,
+      functionality: {
+        core: summary,
+        features: extractFeaturesFromSummary(summary),
+        patterns: context.patterns
+      },
+      recommendations: generateRecommendations(context, endpoint, summary)
+    },
+    implementation: generateGenericImplementationPlan(context),
+    testing: generateGenericTestPlan(endpoint, summary)
+  };
+}
+
+/**
+ * Generate recommendations based on context
+ */
+function generateRecommendations(context: any, endpoint: string, summary: string): string[] {
+  const recommendations = [];
+
+  if (context.projectType === 'nextjs') {
+    recommendations.push('Use Next.js API route patterns with proper TypeScript types');
+  }
+
+  if (context.patterns.includes('zod_validation')) {
+    recommendations.push('Implement Zod schemas for request validation');
+  }
+
+  if (context.patterns.includes('user_auth_header')) {
+    recommendations.push('Follow existing authentication pattern with x-user-id header');
+  }
+
+  if (context.features.includes('playlist_management')) {
+    recommendations.push('Ensure consistency with existing playlist API patterns');
+  }
+
+  if (endpoint.includes('{') && endpoint.includes('}')) {
+    recommendations.push('Implement proper path parameter validation');
+    recommendations.push('Add 404 handling for non-existent resources');
+  }
+
+  recommendations.push('Add comprehensive error handling and logging');
+  recommendations.push('Include unit and integration tests');
+  recommendations.push('Document API with OpenAPI/Swagger');
+
+  return recommendations;
+}
+
+/**
+ * Generate implementation plans for different domains
+ */
+function generateUserImplementationPlan(context: any): any {
   return {
     phases: [
       {
-        name: "Design",
-        tasks: designTasks.length > 0 ? designTasks : ["Design system architecture"],
-        deliverables: ["Design documents", "API specifications", "Schema definitions"]
+        name: 'Authentication Setup',
+        tasks: ['Set up user model', 'Implement password hashing', 'Create session management'],
+        deliverables: ['User schema', 'Auth middleware', 'Session store']
       },
       {
-        name: "Implementation",
-        tasks: implementationTasks.length > 0 ? implementationTasks : ["Implement core functionality"],
-        deliverables: ["Functional code", "Initial documentation", "Test suite"]
-      },
-      {
-        name: "Testing",
-        tasks: testingTasks,
-        deliverables: ["Test reports", "User feedback", "Documentation updates"]
-      },
-      {
-        name: "Deployment",
-        tasks: deploymentTasks,
-        deliverables: ["Production release", "Public documentation", "Feedback analysis"]
+        name: 'API Implementation',
+        tasks: ['Create user routes', 'Add validation', 'Implement CRUD operations'],
+        deliverables: ['User API', 'Validation schemas', 'Error handling']
       }
     ],
-    dependencies: {
-      external: ["MCP SDK", "Documentation generation tools", "Notification service"],
-      internal: ["Existing task execution system", "User management", "API gateway"]
-    }
+    technologies: generateTechnologyStack(context)
+  };
+}
+
+function generateAPIImplementationPlan(context: any): any {
+  return {
+    phases: [
+      {
+        name: 'API Design',
+        tasks: ['Define API contract', 'Create request/response schemas', 'Plan error handling'],
+        deliverables: ['API specification', 'Schemas', 'Error codes']
+      },
+      {
+        name: 'Implementation',
+        tasks: ['Implement route handlers', 'Add validation', 'Create tests'],
+        deliverables: ['Route handlers', 'Validation', 'Test suite']
+      }
+    ],
+    technologies: generateTechnologyStack(context)
+  };
+}
+
+function generateGenericImplementationPlan(context: any): any {
+  return {
+    phases: [
+      {
+        name: 'Planning',
+        tasks: ['Analyze requirements', 'Design API contract', 'Plan implementation'],
+        deliverables: ['Requirements doc', 'API design', 'Implementation plan']
+      },
+      {
+        name: 'Development',
+        tasks: ['Implement core functionality', 'Add validation and error handling', 'Create tests'],
+        deliverables: ['Core implementation', 'Validation layer', 'Test suite']
+      }
+    ],
+    technologies: generateTechnologyStack(context)
   };
 }
 
 /**
- * Generate a full spec with all features when no specific features are detected
+ * Generate test plan
  */
-function generateFullSpec(endpoint: string, summary: string): any {
+function generateGenericTestPlan(endpoint: string, summary: string): any {
   return {
-    endpoint,
-    summary,
-    createdAt: new Date().toISOString(),
-    features: [
-      {
-        "name": "multi-task-specs",
-        "description": "Support for defining complex tasks with multiple subtasks and dependencies",
-        "details": {
-          "structure": {
-            "tasks": "Array of task objects that can be executed in sequence or parallel",
-            "dependencies": "Graph representation of inter-task dependencies",
-            "globalParams": "Parameters shared across all tasks in the spec"
-          },
-          "implementation": {
-            "fileFormat": "Extended JSON format with task definitions",
-            "scheduler": "Task execution with dependency resolution",
-            "validation": "Schema-based validation of task structures"
-          }
-        }
-      },
-      {
-        "name": "task-metadata",
-        "description": "Extended metadata for task tracking, visualization, and management",
-        "details": {
-          "fields": {
-            "owner": "Person responsible for the task",
-            "priority": "Task importance (low, medium, high, critical)",
-            "estimatedTime": "Expected completion time",
-            "status": "Current execution state",
-            "tags": "Categorization and filtering"
-          },
-          "capabilities": {
-            "filtering": "Query tasks by metadata",
-            "reporting": "Generate status reports based on metadata",
-            "visualization": "Create dependency and status charts"
-          }
-        }
-      },
-      {
-        "name": "refine-spec-tool",
-        "description": "Tool for iteratively refining and updating task specifications",
-        "details": {
-          "operations": {
-            "add": "Add new tasks to existing specs",
-            "update": "Modify existing task definitions",
-            "remove": "Remove tasks from specs",
-            "reorder": "Change task execution order"
-          },
-          "intelligence": {
-            "suggestions": "Smart suggestions for task refinement",
-            "validation": "Verify spec integrity after changes",
-            "history": "Track changes to specs over time"
-          }
-        }
-      },
-      {
-        "name": "user-notifications",
-        "description": "System for notifying users about task status changes and events",
-        "details": {
-          "channels": {
-            "inApp": "Notifications within the Carrot UI",
-            "email": "Email notifications for important events",
-            "webhook": "Custom webhook integration"
-          },
-          "events": {
-            "taskCompletion": "When tasks are completed",
-            "taskFailure": "When tasks encounter errors",
-            "progressUpdates": "Periodic updates on long-running tasks",
-            "approvalRequests": "When user input is needed"
-          },
-          "preferences": {
-            "perUser": "User-specific notification settings",
-            "perProject": "Project-level notification rules"
-          }
-        }
-      },
-      {
-        "name": "documentation",
-        "description": "Comprehensive documentation for Carrot features and APIs",
-        "details": {
-          "components": {
-            "userGuide": "End-user documentation for Carrot",
-            "developerDocs": "API documentation for developers",
-            "tutorials": "Step-by-step guides for common workflows",
-            "examples": "Sample projects and configurations"
-          },
-          "formats": {
-            "markdown": "Source format for all documentation",
-            "html": "Generated web documentation",
-            "pdf": "Downloadable reference guides"
-          },
-          "infrastructure": {
-            "docSite": "Documentation website with search",
-            "versionControl": "Documentation versioned with code",
-            "contributionFlow": "Process for community contributions"
-          }
-        }
-      }
+    unitTests: [
+      'Request validation',
+      'Business logic',
+      'Error handling',
+      'Response formatting'
     ],
-    implementation: {
-      phases: [
-        {
-          name: "Design",
-          tasks: [
-            "Create detailed schemas for multi-task specs",
-            "Design API endpoints for task metadata",
-            "Plan user notification system architecture",
-            "Outline documentation structure"
-          ],
-          deliverables: ["Design documents", "API specifications", "Schema definitions"]
-        },
-        {
-          name: "Implementation",
-          tasks: [
-            "Develop core multi-task spec functionality",
-            "Build refine-spec tool backend",
-            "Implement notification system",
-            "Create documentation infrastructure"
-          ],
-          deliverables: ["Functional code", "Initial documentation", "Test suite"]
-        },
-        {
-          name: "Testing",
-          tasks: [
-            "Unit test all new components",
-            "Integration testing of notification system",
-            "User testing of refine-spec tool",
-            "Documentation review"
-          ],
-          deliverables: ["Test reports", "User feedback", "Documentation updates"]
-        },
-        {
-          name: "Deployment",
-          tasks: [
-            "Release new features",
-            "Publish documentation",
-            "Monitor system performance",
-            "Gather user feedback"
-          ],
-          deliverables: ["Production release", "Public documentation", "Feedback analysis"]
-        }
-      ],
-      dependencies: {
-        external: ["MCP SDK", "Documentation generation tools", "Notification service"],
-        internal: ["Existing task execution system", "User management", "API gateway"]
+    integrationTests: [
+      'End-to-end API flow',
+      'Database integration',
+      'Authentication flow',
+      'Error scenarios'
+    ],
+    testScenarios: [
+      {
+        scenario: 'Successful operation',
+        given: 'Valid input data',
+        when: 'API request is made',
+        then: 'Expected response is returned'
+      },
+      {
+        scenario: 'Invalid input',
+        given: 'Invalid input data',
+        when: 'API request is made',
+        then: '400 Bad Request is returned'
+      },
+      {
+        scenario: 'Unauthorized access',
+        given: 'No or invalid authentication',
+        when: 'API request is made',
+        then: '401 Unauthorized is returned'
       }
-    }
+    ]
   };
 }
 

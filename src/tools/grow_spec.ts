@@ -386,10 +386,11 @@ export function growSpecTool(server: McpServer, repoRoot: string): void {
           }
         };
 
-        // Create specs directory with proper error handling
+        // Create specs directory with proper error handling and intelligent routing
         const specDir = projectDir ?
           path.resolve(repoRoot, projectDir) :
-          path.join(repoRoot, 'specs');
+          determineSpecDirectory(repoRoot, normalizedEndpoint);
+        
         try {
           if (!fs.existsSync(specDir)) {
             fs.mkdirSync(specDir, { recursive: true, mode: 0o755 });
@@ -919,4 +920,39 @@ function extractFeaturesFromSummary(summary: string): any[] {
   }
   
   return identifiedFeatures;
+}
+
+/**
+ * Determine the appropriate spec directory based on the endpoint
+ */
+function determineSpecDirectory(repoRoot: string, endpoint: string): string {
+  // Analyze endpoint to determine appropriate subdirectory
+  const lowerEndpoint = endpoint.toLowerCase();
+  
+  // API endpoints (most common case)
+  if (lowerEndpoint.includes('/api/') || lowerEndpoint.startsWith('/api') || 
+      lowerEndpoint.includes('endpoint') || lowerEndpoint.includes('route')) {
+    return path.join(repoRoot, 'specs', 'api');
+  }
+  
+  // UI/Component endpoints
+  if (lowerEndpoint.includes('/ui/') || lowerEndpoint.includes('/component') || 
+      lowerEndpoint.includes('/page') || lowerEndpoint.includes('/view')) {
+    return path.join(repoRoot, 'specs', 'ui');
+  }
+  
+  // Database/Schema endpoints
+  if (lowerEndpoint.includes('/db/') || lowerEndpoint.includes('/database') || 
+      lowerEndpoint.includes('/schema') || lowerEndpoint.includes('/model')) {
+    return path.join(repoRoot, 'specs', 'db');
+  }
+  
+  // Background job endpoints
+  if (lowerEndpoint.includes('/job') || lowerEndpoint.includes('/task') || 
+      lowerEndpoint.includes('/worker') || lowerEndpoint.includes('/queue')) {
+    return path.join(repoRoot, 'specs', 'job');
+  }
+  
+  // Default to api for any unrecognized patterns
+  return path.join(repoRoot, 'specs', 'api');
 } 

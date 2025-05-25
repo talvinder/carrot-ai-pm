@@ -145,68 +145,75 @@ export function checkSpecComplianceTool(server: McpServer, repoRoot: string): vo
         const defaultSpecPath = path.join(baseDir, 'vibe.yaml');
         const finalSpecPath = specPath ? path.resolve(baseDir, specPath) : defaultSpecPath;
 
-        // Validate spec file exists
-        if (!fs.existsSync(finalSpecPath)) {
-          return {
-            content: [
-              {
-                type: 'text',
-                text: JSON.stringify({
-                  error: `Spec file not found: ${finalSpecPath}. Generate a spec first using grow_spec tool.`,
-                  suggestions: [
-                    'Run grow_spec tool to generate OpenAPI specification',
-                    'Ensure vibe.yaml exists in your project root',
-                    'Check the specPath parameter if using custom location'
-                  ]
-                }, null, 2)
-              }
-            ]
-          };
-        }
-
         if (generateReport) {
-          // Generate comprehensive project report
-          const report = await generateProjectComplianceReport({
-            projectPath: baseDir,
-            specPath: finalSpecPath
-          });
-          
+          // Project-wide reporting is not yet implemented
           return {
             content: [
               {
                 type: 'text',
                 text: JSON.stringify({
-                  type: 'project_compliance_report',
-                  report,
-                  summary: `Project compliance: ${report.overallScore.toFixed(1)}% - ${report.summary.compliant}/${report.summary.total} endpoints compliant`,
-                  recommendations: report.recommendations
+                  error: 'Project compliance reporting is not yet implemented',
+                  message: 'This feature is under development. Please use specific endpoint checking instead.',
+                  usage: {
+                    example: {
+                      implementationPath: 'routes/users.js',
+                      endpoint: '/api/users',
+                      method: 'POST'
+                    }
+                  },
+                  status: 'not_implemented'
                 }, null, 2)
               }
-            ]
+            ],
+            isError: true
           };
         }
 
         if (watchMode) {
-          // Start continuous monitoring
-          const watchResult = await startComplianceWatch({
-            specPath: finalSpecPath,
-            implementationPath,
-            projectPath: baseDir,
-            endpoint,
-            method
-          });
-          
+          // Watch mode is not yet implemented
           return {
             content: [
               {
                 type: 'text',
-                text: JSON.stringify(watchResult, null, 2)
+                text: JSON.stringify({
+                  error: 'Watch mode is not yet implemented',
+                  message: 'Continuous monitoring is under development. Please use one-time endpoint checking instead.',
+                  usage: {
+                    example: {
+                      implementationPath: 'routes/users.js',
+                      endpoint: '/api/users',
+                      method: 'POST'
+                    }
+                  },
+                  status: 'not_implemented'
+                }, null, 2)
               }
-            ]
+            ],
+            isError: true
           };
         }
 
         if (implementationPath && endpoint && method) {
+          // Validate spec file exists for actual compliance checking
+          if (!fs.existsSync(finalSpecPath)) {
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: JSON.stringify({
+                    error: `Spec file not found: ${finalSpecPath}. Generate a spec first using grow_spec tool.`,
+                    suggestions: [
+                      'Run grow_spec tool to generate OpenAPI specification',
+                      'Ensure vibe.yaml exists in your project root',
+                      'Check the specPath parameter if using custom location'
+                    ]
+                  }, null, 2)
+                }
+              ],
+              isError: true
+            };
+          }
+
           // Check specific endpoint implementation
           const result = await checkSpecCompliance({
             specPath: finalSpecPath,
@@ -719,18 +726,18 @@ async function scanProjectCompliance(options: { projectPath: string; specPath: s
 
 /**
  * Generate project compliance report
+ * NOTE: This function is not yet implemented - the tool handler returns appropriate error messages
  */
 export async function generateProjectComplianceReport(options: { projectPath: string; specPath: string }): Promise<ProjectComplianceReport> {
-  // This would implement comprehensive project reporting
-  // For now, return clear indication that this is not implemented
-  throw new Error('Project compliance reporting is not yet implemented. Please use specific endpoint checking with implementationPath, endpoint, and method parameters.');
+  // This function is not called anymore - the tool handler returns error messages directly
+  throw new Error('This function should not be called - use the tool handler error responses instead');
 }
 
 /**
  * Start compliance watch mode
+ * NOTE: This function is not yet implemented - the tool handler returns appropriate error messages
  */
 export async function startComplianceWatch(options: any): Promise<any> {
-  // This would implement file watching for continuous monitoring
-  // For now, throw error to indicate this is not implemented
-  throw new Error('Watch mode is not yet implemented. Please use specific endpoint checking with implementationPath, endpoint, and method parameters.');
+  // This function is not called anymore - the tool handler returns error messages directly
+  throw new Error('This function should not be called - use the tool handler error responses instead');
 } 

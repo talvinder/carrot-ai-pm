@@ -5,11 +5,15 @@ import { runTestsTool } from './run_tests.js';
 import { formatCodeTool } from './format_code.js';
 import { searchCodeTool } from './search_code.js';
 import { commitChangesTool } from './commit_changes.js';
+import { setupCarrotTool } from './setup_carrot.js';
 
 /**
  * Configure all tools for the MCP server
  */
 export function configureTools(server: McpServer, repoRoot: string): void {
+  // Tool to set up Carrot project structure
+  setupCarrotTool(server, repoRoot);
+  
   // Tool to create FastAPI route stubs
   addRouteTool(server, repoRoot);
   

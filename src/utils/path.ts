@@ -7,30 +7,80 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 /**
- * Gets the repository root directory by running git commands
+ * Gets the project root directory from explicit configuration only.
+ * Requires either CARROT_PROJECT_ROOT environment variable or --project-root CLI argument.
+ * Throws an error if neither is provided or if the path is invalid.
  */
-export function getRepoRoot(): string {
-  try {
-    // Use the directory of the current file as a known point
-    // within the project structure to reliably run the git command.
-    // path.ts is in src/utils/, so projectDir is two levels up.
-    const projectDir = path.resolve(__dirname, '..', '..'); 
-
-    const gitRoot = execSync('git rev-parse --show-toplevel', {
-      encoding: 'utf-8',
-      stdio: ['ignore', 'pipe', 'ignore'],
-      cwd: projectDir // Execute 'git' command from the project directory
-    }).trim();
-    
-    return gitRoot;
-  } catch (error) {
-    console.error('Error trying to determine git repository root:', error);
-    const currentProcessCwd = process.cwd();
-    // Note: Using __dirname in the log here will now work because we've defined it above.
-    console.warn(`Could not determine git repository root via 'git rev-parse --show-toplevel' from ${path.resolve(__dirname, '..', '..')}. Falling back to current process CWD: ${currentProcessCwd}`);
-    return currentProcessCwd;
+export function getProjectRoot(): string {
+  // First, check for CARROT_PROJECT_ROOT environment variable
+  const envProjectRoot = process.env.CARROT_PROJECT_ROOT;
+  if (envProjectRoot) {
+    const resolvedPath = path.resolve(envProjectRoot);
+    try {
+      // Validate that the path exists and is a directory
+      const stats = fs.statSync(resolvedPath);
+      if (stats.isDirectory()) {
+        console.error(`[CarrotMCP] Using project root from CARROT_PROJECT_ROOT: ${resolvedPath}`);
+        return resolvedPath;
+      } else {
+        console.error(`[CarrotMCP Error] CARROT_PROJECT_ROOT path is not a directory: ${resolvedPath}`);
+      }
+    } catch (error) {
+      console.error(`[CarrotMCP Error] CARROT_PROJECT_ROOT path does not exist or is not accessible: ${resolvedPath}`);
+    }
   }
+
+  // Second, check for --project-root CLI argument
+  const args = process.argv;
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    
+    // Check for --project-root=<path> format
+    if (arg.startsWith('--project-root=')) {
+      const cliPath = arg.substring('--project-root='.length);
+      const resolvedPath = path.resolve(cliPath);
+      try {
+        const stats = fs.statSync(resolvedPath);
+        if (stats.isDirectory()) {
+          console.error(`[CarrotMCP] Using project root from CLI argument: ${resolvedPath}`);
+          return resolvedPath;
+        } else {
+          console.error(`[CarrotMCP Error] CLI --project-root path is not a directory: ${resolvedPath}`);
+        }
+      } catch (error) {
+        console.error(`[CarrotMCP Error] CLI --project-root path does not exist or is not accessible: ${resolvedPath}`);
+      }
+    }
+    
+    // Check for --project-root <path> format (space-separated)
+    if (arg === '--project-root' && i + 1 < args.length) {
+      const cliPath = args[i + 1];
+      const resolvedPath = path.resolve(cliPath);
+      try {
+        const stats = fs.statSync(resolvedPath);
+        if (stats.isDirectory()) {
+          console.error(`[CarrotMCP] Using project root from CLI argument: ${resolvedPath}`);
+          return resolvedPath;
+        } else {
+          console.error(`[CarrotMCP Error] CLI --project-root path is not a directory: ${resolvedPath}`);
+        }
+      } catch (error) {
+        console.error(`[CarrotMCP Error] CLI --project-root path does not exist or is not accessible: ${resolvedPath}`);
+      }
+    }
+  }
+
+  // No valid project root found - throw error
+  const errorMessage = "[CarrotMCP Critical Error] Project root not configured or invalid. Please set the 'CARROT_PROJECT_ROOT' environment variable OR use the '--project-root <absolute_path>' command-line argument in your MCP client's server configuration to specify the absolute path to your project.";
+  console.error(errorMessage);
+  throw new Error(errorMessage);
 }
+
+/**
+ * Alias for getProjectRoot to maintain backward compatibility
+ * @deprecated Use getProjectRoot instead
+ */
+export const getRepoRoot = getProjectRoot;
 
 /**
  * Checks if a file path is within the repository

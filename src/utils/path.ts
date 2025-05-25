@@ -64,7 +64,7 @@ export function getProjectRoot(): string {
         } else {
           console.error(`[CarrotMCP Error] CLI --project-root path is not a directory: ${resolvedPath}`);
         }
-      } catch (error) {
+  } catch (error) {
         console.error(`[CarrotMCP Error] CLI --project-root path does not exist or is not accessible: ${resolvedPath}`);
       }
     }

@@ -230,28 +230,30 @@ export function checkSpecComplianceTool(server: McpServer, repoRoot: string): vo
           };
         }
 
-        // Scan project for all implementations
-        const scanResult = await scanProjectCompliance({
-          projectPath: baseDir,
-          specPath: finalSpecPath
-        });
-
+        // For now, require specific endpoint checking
         return {
           content: [
             {
               type: 'text',
               text: JSON.stringify({
-                type: 'project_scan',
-                results: scanResult,
-                summary: `Found ${scanResult.length} endpoints. ${scanResult.filter(r => r.isCompliant).length} compliant, ${scanResult.filter(r => !r.isCompliant).length} need attention.`,
-                nextSteps: [
-                  'Review non-compliant endpoints',
-                  'Use specific endpoint checking for detailed analysis',
-                  'Enable watch mode for continuous monitoring'
+                error: 'Specific endpoint compliance checking required',
+                message: 'Project-wide scanning is not yet implemented. Please specify implementationPath, endpoint, and method parameters.',
+                usage: {
+                  example: {
+                    implementationPath: 'routes/users.js',
+                    endpoint: '/api/users',
+                    method: 'POST'
+                  }
+                },
+                availableOptions: [
+                  'Specify implementationPath, endpoint, and method for detailed compliance checking',
+                  'Use generateReport: true for project-wide analysis (when implemented)',
+                  'Use watchMode: true for continuous monitoring (when implemented)'
                 ]
               }, null, 2)
             }
-          ]
+          ],
+          isError: true
         };
 
       } catch (error: any) {
@@ -720,19 +722,8 @@ async function scanProjectCompliance(options: { projectPath: string; specPath: s
  */
 export async function generateProjectComplianceReport(options: { projectPath: string; specPath: string }): Promise<ProjectComplianceReport> {
   // This would implement comprehensive project reporting
-  // For now, return placeholder
-  return {
-    overallScore: 0.85,
-    endpoints: [],
-    summary: {
-      compliant: 0,
-      nonCompliant: 0,
-      total: 0,
-      criticalIssues: 0
-    },
-    recommendations: [],
-    generatedAt: new Date()
-  };
+  // For now, return clear indication that this is not implemented
+  throw new Error('Project compliance reporting is not yet implemented. Please use specific endpoint checking with implementationPath, endpoint, and method parameters.');
 }
 
 /**
@@ -740,9 +731,6 @@ export async function generateProjectComplianceReport(options: { projectPath: st
  */
 export async function startComplianceWatch(options: any): Promise<any> {
   // This would implement file watching for continuous monitoring
-  // For now, return placeholder
-  return {
-    message: 'Watch mode would be implemented here',
-    options
-  };
+  // For now, throw error to indicate this is not implemented
+  throw new Error('Watch mode is not yet implemented. Please use specific endpoint checking with implementationPath, endpoint, and method parameters.');
 } 

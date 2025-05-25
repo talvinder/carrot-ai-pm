@@ -16,6 +16,7 @@ import {
 
 // Import specific checkers
 import { UIComponentComplianceChecker } from './compliance/ui-checker.js';
+import { DatabaseComplianceChecker } from './compliance/db-checker.js';
 
 // Import the existing API checker (to be refactored)
 import { checkSpecCompliance as checkAPICompliance } from './check_spec_compliance.js';
@@ -35,8 +36,8 @@ import { checkSpecCompliance as checkAPICompliance } from './check_spec_complian
 
 // Register compliance checkers
 ComplianceCheckerFactory.register('ui', () => new UIComponentComplianceChecker());
+ComplianceCheckerFactory.register('db', () => new DatabaseComplianceChecker());
 // TODO: Register other checkers as they're implemented
-// ComplianceCheckerFactory.register('db', () => new DatabaseComplianceChecker());
 // ComplianceCheckerFactory.register('cli', () => new CLIComplianceChecker());
 
 export function checkSpecComplianceUniversalTool(server: McpServer, repoRoot: string): void {
@@ -482,8 +483,10 @@ async function loadImplementation(implementationPath: string, type: ArtifactType
       return {
         filePath: implementationPath,
         content,
-        type: detectDatabaseType(content),
-        language: ext === '.sql' ? 'sql' : 'javascript'
+        dbType: detectDatabaseType(content),
+        language: ext === '.sql' ? 'sql' : 'javascript',
+        hasSchema: content.includes('CREATE TABLE') || content.includes('Schema'),
+        hasMigrations: content.includes('migration') || content.includes('migrate')
       };
     
     default:
@@ -512,13 +515,17 @@ function detectFramework(content: string): 'react' | 'vue' | 'angular' {
 /**
  * Detect database type from content
  */
-function detectDatabaseType(content: string): string {
-  if (content.includes('CREATE TABLE') || content.includes('ALTER TABLE')) {
-    return 'sql';
-  } else if (content.includes('mongoose') || content.includes('Schema')) {
+function detectDatabaseType(content: string): 'postgresql' | 'mysql' | 'sqlite' | 'mongodb' {
+  if (content.includes('SERIAL') || content.includes('BIGSERIAL') || content.includes('TIMESTAMP WITH TIME ZONE')) {
+    return 'postgresql';
+  } else if (content.includes('AUTO_INCREMENT') || content.includes('TINYINT') || content.includes('MEDIUMINT')) {
+    return 'mysql';
+  } else if (content.includes('AUTOINCREMENT') || content.includes('INTEGER PRIMARY KEY')) {
+    return 'sqlite';
+  } else if (content.includes('mongoose') || content.includes('Schema') || content.includes('ObjectId')) {
     return 'mongodb';
   }
-  return 'unknown';
+  return 'postgresql'; // Default assumption
 }
 
 /**

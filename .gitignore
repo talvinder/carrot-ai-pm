@@ -97,4 +97,5 @@ build
 # VSCode
 .vscode/
 
-weather
+weather/*
+specs

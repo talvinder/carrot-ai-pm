@@ -1,7 +1,7 @@
 /**
  * UI Component Compliance Checker
  * 
- * Validates React/Vue components against their specifications, checking:
+ * Validates UI components against their framework-neutral specifications, checking:
  * - Props compliance (types, required/optional, defaults)
  * - Accessibility compliance (ARIA, keyboard navigation, semantic HTML)
  * - Design system compliance (tokens, variants, states)
@@ -25,18 +25,22 @@ export interface UIComponentSpec {
   identifier: string;
   summary: string;
   specification: {
-    component: {
-      type: 'functional-component' | 'class-component';
-      framework: 'react' | 'vue' | 'angular';
+    // Framework-neutral component definition
+    interface: {
+      props: {
+        required: Record<string, PropDefinition>;
+        optional: Record<string, PropDefinition>;
+      };
+      events: EventDefinition[];
+      slots?: SlotDefinition[];
     };
-    props: {
-      required: Record<string, PropDefinition>;
-      optional: Record<string, PropDefinition>;
+    behavior: {
+      states: StateDefinition[];
+      interactions?: InteractionDefinition[];
     };
-    events: EventDefinition[];
     accessibility: AccessibilityRequirements;
     design_system: DesignSystemRequirements;
-    states: StateDefinition[];
+    performance?: PerformanceRequirements;
   };
   complianceRules: string[];
 }
@@ -47,6 +51,7 @@ export interface PropDefinition {
   default?: any;
   validation?: string;
   examples?: any[];
+  frameworkTypes?: Record<string, string>; // Framework-specific type mappings
 }
 
 export interface EventDefinition {
@@ -54,6 +59,18 @@ export interface EventDefinition {
   description: string;
   payload: Record<string, string>;
   required?: boolean;
+}
+
+export interface SlotDefinition {
+  name: string;
+  description: string;
+  required?: boolean;
+}
+
+export interface InteractionDefinition {
+  name: string;
+  description: string;
+  triggers: string[];
 }
 
 export interface AccessibilityRequirements {
@@ -76,17 +93,23 @@ export interface StateDefinition {
   visual_changes?: string[];
 }
 
+export interface PerformanceRequirements {
+  memoization?: boolean;
+  lazy_loading?: boolean;
+  bundle_size_limit?: string;
+}
+
 export interface ComponentImplementation {
   filePath: string;
   content: string;
-  framework: 'react' | 'vue' | 'angular';
+  framework: 'react' | 'vue' | 'angular' | 'svelte' | 'web-components';
   language: 'typescript' | 'javascript';
   hasTypeDefinitions: boolean;
 }
 
 export class UIComponentComplianceChecker extends BaseComplianceChecker<UIComponentSpec, ComponentImplementation> {
   readonly artifactType: ArtifactType = 'ui';
-  readonly supportedFrameworks = ['react', 'vue', 'angular'];
+  readonly supportedFrameworks = ['react', 'vue', 'angular', 'svelte', 'web-components'];
 
   getComplianceDimensions(): string[] {
     return [
@@ -156,28 +179,28 @@ export class UIComponentComplianceChecker extends BaseComplianceChecker<UICompon
     }
 
     // Check required props
-    for (const [propName, propDef] of Object.entries(spec.specification.props.required)) {
+    for (const [propName, propDef] of Object.entries(spec.specification.interface.props.required)) {
       if (!this.hasPropDefinition(implementation, propName)) {
         issues.push({
           type: 'MISSING_REQUIRED_PROP',
           severity: 'error',
           message: `Missing required prop: ${propName}`,
-          suggestion: `Add ${propName} prop with type ${propDef.type}`,
+          suggestion: `Add ${propName} prop with type ${this.getFrameworkSpecificType(propDef, implementation.framework)}`,
           location: { file: implementation.filePath }
         });
-      } else if (!this.hasCorrectPropType(implementation, propName, propDef.type)) {
+      } else if (!this.hasCorrectPropType(implementation, propName, this.getFrameworkSpecificType(propDef, implementation.framework))) {
         issues.push({
           type: 'INCORRECT_PROP_TYPE',
           severity: 'error',
           message: `Prop ${propName} has incorrect type`,
-          suggestion: `Change ${propName} prop type to ${propDef.type}`,
+          suggestion: `Change ${propName} prop type to ${this.getFrameworkSpecificType(propDef, implementation.framework)}`,
           location: { file: implementation.filePath }
         });
       }
     }
 
     // Check optional props have defaults
-    for (const [propName, propDef] of Object.entries(spec.specification.props.optional)) {
+    for (const [propName, propDef] of Object.entries(spec.specification.interface.props.optional)) {
       if (propDef.default !== undefined && !this.hasDefaultValue(implementation, propName)) {
         issues.push({
           type: 'MISSING_DEFAULT_VALUE',
@@ -216,32 +239,32 @@ export class UIComponentComplianceChecker extends BaseComplianceChecker<UICompon
           issues.push({
             type: 'MISSING_ARIA_ATTRIBUTE',
             severity: 'error',
-            message: `Missing ARIA attribute: ${attr}`,
-            suggestion: `Add ${attr}="${value}" to component`,
+            message: `Missing ARIA attribute: ${attr}="${value}"`,
+            suggestion: `Add ${attr}="${value}" to the component`,
             location: { file: implementation.filePath }
           });
         }
       }
     }
 
-    // Check for semantic HTML usage
+    // Check semantic HTML usage
     if (!this.usesSemanticHTML(implementation)) {
       issues.push({
         type: 'NON_SEMANTIC_HTML',
         severity: 'warning',
         message: 'Component should use semantic HTML elements',
-        suggestion: 'Replace div/span with semantic elements like button, nav, main, etc.',
+        suggestion: 'Use appropriate semantic HTML elements (button, input, etc.)',
         location: { file: implementation.filePath }
       });
     }
 
-    // Check for keyboard navigation support
+    // Check keyboard support for interactive components
     if (this.isInteractiveComponent(spec) && !this.hasKeyboardSupport(implementation)) {
       issues.push({
         type: 'MISSING_KEYBOARD_SUPPORT',
         severity: 'error',
-        message: 'Interactive component missing keyboard navigation',
-        suggestion: 'Add onKeyDown handler for Enter and Space keys',
+        message: 'Interactive component missing keyboard support',
+        suggestion: 'Add keyboard event handlers for Enter and Space keys',
         location: { file: implementation.filePath }
       });
     }
@@ -300,7 +323,7 @@ export class UIComponentComplianceChecker extends BaseComplianceChecker<UICompon
   ): Promise<ComplianceIssue[]> {
     const issues: ComplianceIssue[] = [];
 
-    for (const event of spec.specification.events) {
+    for (const event of spec.specification.interface.events) {
       if (event.required !== false && !this.hasEventHandler(implementation, event.name)) {
         issues.push({
           type: 'MISSING_EVENT_HANDLER',
@@ -419,7 +442,7 @@ export class UIComponentComplianceChecker extends BaseComplianceChecker<UICompon
   }
 
   private isInteractiveComponent(spec: UIComponentSpec): boolean {
-    return spec.specification.events.some(event => 
+    return spec.specification.interface.events.some(event => 
       event.name.includes('click') || 
       event.name.includes('change') || 
       event.name.includes('submit')
@@ -538,5 +561,12 @@ export class UIComponentComplianceChecker extends BaseComplianceChecker<UICompon
       return `${match[1]}="${match[2]}"`;
     }
     return '// Add appropriate ARIA attribute';
+  }
+
+  private getFrameworkSpecificType(propDef: PropDefinition, framework: string): string {
+    if (propDef.frameworkTypes && propDef.frameworkTypes[framework]) {
+      return propDef.frameworkTypes[framework];
+    }
+    return propDef.type;
   }
 } 

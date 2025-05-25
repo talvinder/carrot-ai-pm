@@ -129,40 +129,94 @@ For local development with auto-rebuild on file changes:
 *   `PORT`: If set to a port number (e.g., `3000`), enables HTTP/SSE transport. If not set or set to `0`, defaults to stdio.
 *   `GITHUB_TOKEN`: A GitHub Personal Access Token for increased API rate limits when accessing GitHub issues via the `todo://` resource.
 *   `PG_DSN`: PostgreSQL connection string (e.g., `postgresql://user:password@host:port/database`) for features that might require database access.
-*   `CARROT_PROJECT_ROOT`: (Recommended) Absolute path to the root of the Carrot project codebase that this MCP server will manage. Defaults to a relative path if not set, which might be less robust.
+*   `CARROT_PROJECT_ROOT`: **(REQUIRED)** Absolute path to the root of the Carrot project codebase that this MCP server will manage. The server will **not** attempt to guess this path. If it's not explicitly provided, the server will log an error and exit.
+
+### Project Root Configuration (REQUIRED)
+
+To use the Carrot Product Manager (Carrot-PM) MCP Server with an MCP client (e.g., Cursor), you **must** configure the server to know the **absolute path to your project directory**.
+
+The server will **not** attempt to guess this path. If it's not explicitly provided, the server will log an error and exit.
+
+You can provide the project root in one of two ways when setting up Carrot-PM in your MCP client's configuration file (e.g., `.cursor/mcp.json`):
+
+1.  **Environment Variable (Recommended):**
+    Set the `CARROT_PROJECT_ROOT` environment variable to the absolute path of your project.
+
+    **Example for `.cursor/mcp.json`:**
+    ```json
+    {
+      "mcpServers": {
+        "carrot-pm": {
+          "command": "node",
+          "args": [
+            "<path-to-your-cloned-carrot-ai-pm-repo>/dist/src/server.js"
+          ],
+          "env": {
+            "CARROT_PROJECT_ROOT": "/Users/yourname/projects/your-actual-project-folder"
+          }
+        }
+      }
+    }
+    ```
+
+2.  **Command-Line Argument:**
+    Pass the `--project-root` argument followed by the absolute path to your project.
+
+    **Example for `.cursor/mcp.json`:**
+    ```json
+    {
+      "mcpServers": {
+        "carrot-pm": {
+          "command": "node",
+          "args": [
+            "<path-to-your-cloned-carrot-ai-pm-repo>/dist/src/server.js",
+            "--project-root", "/Users/yourname/projects/your-actual-project-folder"
+          ]
+        }
+      }
+    }
+    ```
+
+    Alternatively, you can use the `--project-root=<path>` format:
+    ```json
+    {
+      "mcpServers": {
+        "carrot-pm": {
+          "command": "node",
+          "args": [
+            "<path-to-your-cloned-carrot-ai-pm-repo>/dist/src/server.js",
+            "--project-root=/Users/yourname/projects/your-actual-project-folder"
+          ]
+        }
+      }
+    }
+    ```
+
+**IMPORTANT:**
+*   Replace `/Users/yourname/projects/your-actual-project-folder` with the correct **absolute path** to the project you want Carrot-PM to operate on.
+*   Replace `<path-to-your-cloned-carrot-ai-pm-repo>` with the actual absolute path to where you cloned this `carrot-ai-pm` repository.
+*   The path must exist and be a directory, otherwise the server will fail to start.
 
 ### Client Configuration (e.g., Cursor)
 
-To enable your AI client (like Cursor) to discover and use the tools provided by this MCP server, you'll need to configure it. Here's an example for Cursor's `settings.json` or equivalent configuration:
+To enable your AI client (like Cursor) to discover and use the tools provided by this MCP server, you'll need to configure it. Here's a complete example for Cursor's `.cursor/mcp.json`:
 
 ```json
 {
   "mcpServers": {
     "Carrot": {
-      "command": "node", // Or "npm" with args ["run", "start"] if you prefer
+      "command": "node",
       "args": [
-        // Replace with the absolute path to server.js in your cloned carrot-ai-pm repo
         "<path-to-your-cloned-carrot-ai-pm-repo>/dist/src/server.js"
       ],
-      "workingDirectory": "<path-to-your-cloned-carrot-ai-pm-repo>", // Optional, but good practice
-      "environment": { // Optional: to set environment variables like CARROT_PROJECT_ROOT
-        // "CARROT_PROJECT_ROOT": "<path-to-your-carrot-fastapi-project-codebase>"
+      "workingDirectory": "<path-to-your-cloned-carrot-ai-pm-repo>",
+      "env": {
+        "CARROT_PROJECT_ROOT": "/Users/yourname/projects/your-actual-project-folder"
       }
     }
-    // You might have other MCP servers configured, like the "weather" example
-    // "weather": {
-    //     "command": "uv",
-    //     "args": [
-    //         "--directory",
-    //         "<path-to-your-cloned-carrot-ai-pm-repo>/weather", // Example path
-    //         "run",
-    //         "weather.py"
-    //     ]
-    // }
   }
 }
 ```
-**Note:** Replace `<path-to-your-cloned-carrot-ai-pm-repo>` with the actual absolute path to where you cloned this `carrot-ai-pm` repository. If your Carrot FastAPI project is in a different location, you might need to set `CARROT_PROJECT_ROOT` accordingly.
 
 ## 🧠 Core Logic: Understanding the Spec System
 

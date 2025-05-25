@@ -65,6 +65,9 @@ All tool inputs are validated using `zod` schemas.
 *   **`commit_changes`**:
     *   **Inputs**: `message` (string).
     *   **Effect**: Stages all current changes and commits them using `git commit -m "message"`. Does not push.
+*   **`check_spec_compliance`**:
+    *   **Inputs**: `specPath` (optional), `implementationPath` (optional), `endpoint` (optional), `method` (optional), `projectPath` (optional), `watchMode` (optional), `generateReport` (optional).
+    *   **Effect**: Validates implementation against OpenAPI specifications, providing real-time compliance feedback with actionable suggestions for fixes.
 
 ### 📝 Prompts (Reusable Templates)
 
@@ -217,6 +220,65 @@ To enable your AI client (like Cursor) to discover and use the tools provided by
   }
 }
 ```
+
+## 🔍 Spec Compliance Checking - Hypothesis-Driven Development
+
+One of the key challenges in AI-assisted development is ensuring that implementations actually follow the generated specifications. The Carrot AI PM includes a sophisticated **Spec Compliance Checker** built using Test-Driven Development (TDD) and hypothesis-driven design.
+
+### Hypothesis
+
+**Primary Hypothesis**: Developers need real-time feedback on whether their implementation matches the generated specifications, with actionable insights on deviations and suggestions for alignment.
+
+### Key Features
+
+- **Real-time Validation**: Check if route implementations match OpenAPI specs
+- **Actionable Suggestions**: Get specific code fixes, not just error messages
+- **Multiple Compliance Dimensions**: Validates response schemas, request validation, error handling, and route patterns
+- **Progressive Enhancement**: Compliance checking integrates seamlessly with existing workflows
+- **Watch Mode**: Continuous monitoring during development
+
+### Usage Examples
+
+```bash
+# Check specific endpoint compliance
+{
+  "tool": "check_spec_compliance",
+  "parameters": {
+    "implementationPath": "routes/users.js",
+    "endpoint": "/api/users",
+    "method": "POST"
+  }
+}
+
+# Generate project-wide compliance report
+{
+  "tool": "check_spec_compliance",
+  "parameters": {
+    "generateReport": true
+  }
+}
+
+# Enable continuous monitoring
+{
+  "tool": "check_spec_compliance",
+  "parameters": {
+    "watchMode": true,
+    "implementationPath": "routes/users.js"
+  }
+}
+```
+
+### Compliance Scoring
+
+The tool provides weighted compliance scores:
+- **90-100%**: Excellent compliance
+- **80-89%**: Good compliance (considered compliant)
+- **60-79%**: Needs improvement
+- **Below 60%**: Significant issues requiring attention
+
+For detailed documentation and examples, see:
+- [Spec Compliance Documentation](docs/spec-compliance-checking.md)
+- [Practical Demo](examples/spec-compliance-demo.md)
 
 ## 🧠 Core Logic: Understanding the Spec System
 

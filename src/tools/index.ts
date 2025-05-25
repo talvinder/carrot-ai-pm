@@ -6,6 +6,7 @@ import { formatCodeTool } from './format_code.js';
 import { searchCodeTool } from './search_code.js';
 import { commitChangesTool } from './commit_changes.js';
 import { setupCarrotTool } from './setup_carrot.js';
+import { checkSpecComplianceTool } from './check_spec_compliance.js';
 
 /**
  * Configure all tools for the MCP server
@@ -31,4 +32,7 @@ export function configureTools(server: McpServer, repoRoot: string): void {
   
   // // Tool to commit changes via git
   commitChangesTool(server, repoRoot);
+  
+  // Tool to check spec compliance
+  checkSpecComplianceTool(server, repoRoot);
 } 

@@ -15,8 +15,14 @@ const server = new McpServer({
   version: '1.0.0',
 });
 
-// Get repository root path
-const repoRoot = getRepoRoot();
+// Get repository root path with error handling
+let repoRoot: string;
+try {
+  repoRoot = getRepoRoot();
+} catch (error) {
+  console.error("[CarrotMCP Fatal] Server startup failed: Could not determine a valid project root.");
+  process.exit(1);
+}
 
 // Configure resources, tools, and prompts
 configureResources(server, repoRoot);

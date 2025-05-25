@@ -148,11 +148,18 @@ export function checkSpecComplianceTool(server: McpServer, repoRoot: string): vo
         // Validate spec file exists
         if (!fs.existsSync(finalSpecPath)) {
           return {
-            error: `Spec file not found: ${finalSpecPath}. Generate a spec first using grow_spec tool.`,
-            suggestions: [
-              'Run grow_spec tool to generate OpenAPI specification',
-              'Ensure vibe.yaml exists in your project root',
-              'Check the specPath parameter if using custom location'
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify({
+                  error: `Spec file not found: ${finalSpecPath}. Generate a spec first using grow_spec tool.`,
+                  suggestions: [
+                    'Run grow_spec tool to generate OpenAPI specification',
+                    'Ensure vibe.yaml exists in your project root',
+                    'Check the specPath parameter if using custom location'
+                  ]
+                }, null, 2)
+              }
             ]
           };
         }
@@ -165,22 +172,38 @@ export function checkSpecComplianceTool(server: McpServer, repoRoot: string): vo
           });
           
           return {
-            type: 'project_compliance_report',
-            report,
-            summary: `Project compliance: ${report.overallScore.toFixed(1)}% - ${report.summary.compliant}/${report.summary.total} endpoints compliant`,
-            recommendations: report.recommendations
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify({
+                  type: 'project_compliance_report',
+                  report,
+                  summary: `Project compliance: ${report.overallScore.toFixed(1)}% - ${report.summary.compliant}/${report.summary.total} endpoints compliant`,
+                  recommendations: report.recommendations
+                }, null, 2)
+              }
+            ]
           };
         }
 
         if (watchMode) {
           // Start continuous monitoring
-          return await startComplianceWatch({
+          const watchResult = await startComplianceWatch({
             specPath: finalSpecPath,
             implementationPath,
             projectPath: baseDir,
             endpoint,
             method
           });
+          
+          return {
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify(watchResult, null, 2)
+              }
+            ]
+          };
         }
 
         if (implementationPath && endpoint && method) {
@@ -193,10 +216,17 @@ export function checkSpecComplianceTool(server: McpServer, repoRoot: string): vo
           });
 
           return {
-            type: 'endpoint_compliance',
-            result,
-            summary: generateComplianceSummary(result),
-            actionableSteps: generateActionableSteps(result)
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify({
+                  type: 'endpoint_compliance',
+                  result,
+                  summary: generateComplianceSummary(result),
+                  actionableSteps: generateActionableSteps(result)
+                }, null, 2)
+              }
+            ]
           };
         }
 
@@ -207,26 +237,41 @@ export function checkSpecComplianceTool(server: McpServer, repoRoot: string): vo
         });
 
         return {
-          type: 'project_scan',
-          results: scanResult,
-          summary: `Found ${scanResult.length} endpoints. ${scanResult.filter(r => r.isCompliant).length} compliant, ${scanResult.filter(r => !r.isCompliant).length} need attention.`,
-          nextSteps: [
-            'Review non-compliant endpoints',
-            'Use specific endpoint checking for detailed analysis',
-            'Enable watch mode for continuous monitoring'
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify({
+                type: 'project_scan',
+                results: scanResult,
+                summary: `Found ${scanResult.length} endpoints. ${scanResult.filter(r => r.isCompliant).length} compliant, ${scanResult.filter(r => !r.isCompliant).length} need attention.`,
+                nextSteps: [
+                  'Review non-compliant endpoints',
+                  'Use specific endpoint checking for detailed analysis',
+                  'Enable watch mode for continuous monitoring'
+                ]
+              }, null, 2)
+            }
           ]
         };
 
       } catch (error: any) {
         console.error('Error in check_spec_compliance:', error);
         return {
-          error: `Compliance check failed: ${error.message}`,
-          troubleshooting: [
-            'Ensure spec file is valid YAML/JSON',
-            'Check file permissions',
-            'Verify implementation files exist',
-            'Run with verbose logging for more details'
-          ]
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify({
+                error: `Compliance check failed: ${error.message}`,
+                troubleshooting: [
+                  'Ensure spec file is valid YAML/JSON',
+                  'Check file permissions',
+                  'Verify implementation files exist',
+                  'Run with verbose logging for more details'
+                ]
+              }, null, 2)
+            }
+          ],
+          isError: true
         };
       }
     }

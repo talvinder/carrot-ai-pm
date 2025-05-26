@@ -17,6 +17,7 @@ import {
 // Import specific checkers
 import { UIComponentComplianceChecker } from './compliance/ui-checker.js';
 import { DatabaseComplianceChecker } from './compliance/db-checker.js';
+import { CLIComplianceChecker } from './compliance/cli-checker.js';
 
 // Import the existing API checker (to be refactored)
 import { checkSpecCompliance as checkAPICompliance } from './check_spec_compliance.js';
@@ -37,8 +38,8 @@ import { checkSpecCompliance as checkAPICompliance } from './check_spec_complian
 // Register compliance checkers
 ComplianceCheckerFactory.register('ui', () => new UIComponentComplianceChecker());
 ComplianceCheckerFactory.register('db', () => new DatabaseComplianceChecker());
+ComplianceCheckerFactory.register('cli', () => new CLIComplianceChecker());
 // TODO: Register other checkers as they're implemented
-// ComplianceCheckerFactory.register('cli', () => new CLIComplianceChecker());
 
 export function checkSpecComplianceUniversalTool(server: McpServer, repoRoot: string): void {
   console.log('Initializing universal check_spec_compliance tool with repo root:', repoRoot);

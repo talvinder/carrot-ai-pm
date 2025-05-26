@@ -1,6 +1,9 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { addRouteTool } from './add_route.js';
 import { growSpecTool } from './grow_spec.js';
+import { growUISpecTool } from './grow_ui_spec.js';
+import { growDBSpecTool } from './grow_db_spec.js';
+import { growCLISpecTool } from './grow_cli_spec.js';
 import { runTestsTool } from './run_tests.js';
 import { formatCodeTool } from './format_code.js';
 import { searchCodeTool } from './search_code.js';
@@ -20,6 +23,15 @@ export function configureTools(server: McpServer, repoRoot: string): void {
   
   // Tool to append stubs to vibe.yaml
   growSpecTool(server, repoRoot);
+  
+  // Tool to create UI component specifications
+  growUISpecTool(server, repoRoot);
+  
+  // Tool to create database specifications
+  growDBSpecTool(server, repoRoot);
+  
+  // Tool to create CLI specifications
+  growCLISpecTool(server, repoRoot);
   
   // // Tool to run pytest
   runTestsTool(server, repoRoot);

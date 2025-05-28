@@ -242,11 +242,11 @@ For developers who want to understand what makes Carrot special:
 
 ## 🌟 Success Stories
 
-> "Before Carrot, I'd spend hours debugging AI-generated code. Now I catch issues in seconds and know exactly how to fix them." - Sarah, Full-Stack Developer
+> "Before Carrot, I'd spend hours debugging AI-generated code. Now I catch issues in seconds and know exactly how to fix them." - Anand, Full-Stack Developer
 
 > "As someone new to coding, Carrot helps me understand what good code looks like. It's like having a senior developer reviewing my work." - Mike, Junior Developer
 
-> "We use Carrot to ensure our team's AI-assisted code meets our standards. It's reduced our code review time by 70%." - Lisa, Tech Lead
+> "We use Carrot to ensure our team's AI-assisted code meets our standards. It's reduced our code review time by 70%." - Ajay, Tech Lead
 
 ## 🚦 Getting Help
 

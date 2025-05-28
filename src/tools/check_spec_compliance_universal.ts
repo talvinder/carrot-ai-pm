@@ -22,6 +22,10 @@ import { CLIComplianceChecker } from './compliance/cli-checker.js';
 // Import the existing API checker (to be refactored)
 import { checkSpecCompliance as checkAPICompliance } from './check_spec_compliance.js';
 
+// Import storage and AST analyzer
+import { ComplianceStorage } from './compliance/storage.js';
+import { ASTAnalyzer } from './compliance/ast-analyzer.js';
+
 /**
  * Universal Spec Compliance Checker Tool
  * 
@@ -201,23 +205,209 @@ async function handleAPICompliance(
     };
   }
 
+  const resolvedImplementationPath = path.resolve(baseDir, implementationPath);
+  
+  if (!fs.existsSync(resolvedImplementationPath)) {
+    return {
+      content: [{
+        type: 'text',
+        text: JSON.stringify({
+          error: `Implementation file not found: ${resolvedImplementationPath}`,
+          suggestions: [
+            'Check if implementation file exists',
+            'Verify the implementationPath parameter',
+            'Ensure file path is correct'
+          ]
+        }, null, 2)
+      }],
+      isError: true
+    };
+  }
+
+  console.log(`🔍 Running enhanced API compliance check for ${method} ${endpoint}...`);
+  console.log(`   📋 Spec: ${finalSpecPath}`);
+  console.log(`   📄 Implementation: ${resolvedImplementationPath}`);
+
+  // Initialize storage and AST analyzer
+  const storage = new ComplianceStorage({
+    storageDir: path.join(baseDir, '.carrot', 'compliance'),
+    enableAuditTrail: true,
+    maxHistoryEntries: 50
+  });
+  
+  const astAnalyzer = new ASTAnalyzer();
+
   // Use existing API compliance checker
-  const result = await checkAPICompliance({
+  const legacyResult = await checkAPICompliance({
     specPath: finalSpecPath,
-    implementationPath: path.resolve(baseDir, implementationPath),
+    implementationPath: resolvedImplementationPath,
     endpoint,
     method
   });
 
+  console.log(`   ✅ API compliance check completed: ${(legacyResult.score * 100).toFixed(1)}% score`);
+
+  // Convert legacy result to universal format
+  const complianceResult: ComplianceResult = {
+    isCompliant: legacyResult.isCompliant,
+    score: legacyResult.score,
+    issues: legacyResult.issues || [],
+    suggestions: (legacyResult.suggestions || []).map((suggestion: any) => ({
+      type: suggestion.type,
+      description: suggestion.description,
+      code: suggestion.code,
+      autoFixable: suggestion.autoFixable,
+      priority: suggestion.priority,
+      category: 'validation' as const // Map to base framework category
+    })),
+    metadata: {
+      artifactType: 'api',
+      identifier: `${method} ${endpoint}`,
+      checkedAt: new Date(),
+      checkDuration: 0,
+      version: '1.0.0'
+    },
+    dimensions: {
+      validation: {
+        name: 'Input Validation',
+        score: legacyResult.validationCompliance?.hasValidation ? 1.0 : 0.0,
+        isCompliant: legacyResult.validationCompliance?.hasValidation || false,
+        weight: 0.3,
+        issues: legacyResult.validationCompliance?.missingValidations?.map((v: string) => ({
+          type: 'MISSING_VALIDATION',
+          severity: 'error' as const,
+          message: `Missing validation for ${v}`,
+          suggestion: 'Add request validation middleware'
+        })) || []
+      },
+      errorHandling: {
+        name: 'Error Handling',
+        score: (legacyResult.errorHandlingCompliance?.handles404 && 
+                legacyResult.errorHandlingCompliance?.handles400 && 
+                legacyResult.errorHandlingCompliance?.handles500) ? 1.0 : 0.5,
+        isCompliant: legacyResult.errorHandlingCompliance?.errorFormat === 'compliant',
+        weight: 0.3,
+        issues: legacyResult.errorHandlingCompliance?.missingErrorCodes?.map((code: string) => ({
+          type: 'MISSING_ERROR_HANDLING',
+          severity: 'error' as const,
+          message: `Missing error handling for ${code}`,
+          suggestion: 'Add proper error handling'
+        })) || []
+      },
+      response: {
+        name: 'Response Format',
+        score: legacyResult.responseCompliance?.matchesSchema ? 1.0 : 0.0,
+        isCompliant: legacyResult.responseCompliance?.matchesSchema || false,
+        weight: 0.4,
+        issues: [
+          ...(legacyResult.responseCompliance?.missingFields?.map((field: string) => ({
+            type: 'RESPONSE_MISMATCH',
+            severity: 'error' as const,
+            message: `Missing response field: ${field}`,
+            suggestion: 'Add missing field to response'
+          })) || []),
+          ...(legacyResult.responseCompliance?.extraFields?.map((field: string) => ({
+            type: 'RESPONSE_MISMATCH',
+            severity: 'warning' as const,
+            message: `Extra response field: ${field}`,
+            suggestion: 'Remove extra field or update spec'
+          })) || [])
+        ]
+      }
+    }
+  };
+
+  // Run AST analysis if implementation is a code file
+  let astResult;
+  if (isCodeFile(resolvedImplementationPath)) {
+    console.log(`🌳 Analyzing AST structure...`);
+    try {
+      // Load spec for AST analysis
+      const spec = await loadArtifactSpec(finalSpecPath);
+      astResult = await astAnalyzer.analyzeFile(resolvedImplementationPath, spec);
+      console.log(`   ✅ AST analysis completed: ${astResult.summary.totalNodes} nodes analyzed`);
+      console.log(`   🔍 Hallucinations detected: ${astResult.summary.hallucinationCount}`);
+    } catch (error: any) {
+      console.warn(`⚠️  AST analysis failed: ${error.message}`);
+    }
+  }
+
+  // Save results with AST information
+  console.log(`💾 Saving API compliance results...`);
+  const resultId = await storage.saveComplianceResult(
+    complianceResult,
+    astResult,
+    {
+      projectPath: baseDir,
+      artifactType: 'api',
+      identifier: `${method} ${endpoint}`,
+      specPath: finalSpecPath,
+      implementationPath: resolvedImplementationPath
+    }
+  );
+  console.log(`   ✅ Results saved with ID: ${resultId}`);
+
+  // Generate detailed report
+  console.log(`📊 Generating API compliance report...`);
+  const detailedReport = await storage.generateComplianceReport('api', `${method} ${endpoint}`, true);
+
+  // Prepare enhanced response
+  const response: any = {
+    type: 'api_compliance_enhanced',
+    result: complianceResult,
+    legacyResult: legacyResult, // Keep legacy format for backward compatibility
+    astAnalysis: astResult ? {
+      summary: astResult.summary,
+      indentedTree: astResult.indentedTree,
+      hallucinationCount: astResult.summary.hallucinationCount,
+      complianceBreakdown: {
+        compliantNodes: astResult.summary.compliantNodes,
+        nonCompliantNodes: astResult.summary.nonCompliantNodes,
+        warningNodes: astResult.summary.warningNodes,
+        totalNodes: astResult.summary.totalNodes
+      }
+    } : null,
+    storage: {
+      resultId,
+      saved: true,
+      storageLocation: path.join(baseDir, '.carrot', 'compliance')
+    },
+    summary: generateLegacyComplianceSummary(legacyResult),
+    actionableSteps: generateLegacyActionableSteps(legacyResult),
+    dimensions: Object.entries(complianceResult.dimensions).map(([name, dim]) => ({
+      name: dim.name,
+      score: `${(dim.score * 100).toFixed(1)}%`,
+      status: dim.isCompliant ? '✅' : '❌',
+      issues: dim.issues.length,
+      weight: dim.weight
+    })),
+    detailedReport,
+    metadata: {
+      timestamp: new Date().toISOString(),
+      endpoint,
+      method,
+      specPath: finalSpecPath,
+      implementationPath: resolvedImplementationPath,
+      projectPath: baseDir,
+      carrotVersion: '1.0.0'
+    }
+  };
+
+  // Add AST tree visualization to response
+  if (astResult) {
+    response.astVisualization = {
+      tree: astResult.indentedTree,
+      summary: `AST Analysis: ${astResult.summary.compliantNodes}/${astResult.summary.totalNodes} nodes compliant`,
+      hallucinations: astResult.summary.hallucinationCount > 0 ? 
+        `⚠️ ${astResult.summary.hallucinationCount} potential hallucinations detected` : 
+        '✅ No hallucinations detected'
+    };
+  }
+
   return {
     content: [{
       type: 'text',
-      text: JSON.stringify({
-        type: 'api_compliance',
-        result,
-        summary: generateLegacyComplianceSummary(result),
-        actionableSteps: generateLegacyActionableSteps(result)
-      }, null, 2)
+      text: JSON.stringify(response, null, 2)
     }]
   };
 }
@@ -249,6 +439,15 @@ async function handleUniversalCompliance(
       isError: true
     };
   }
+
+  // Initialize storage and AST analyzer
+  const storage = new ComplianceStorage({
+    storageDir: path.join(baseDir, '.carrot', 'compliance'),
+    enableAuditTrail: true,
+    maxHistoryEntries: 50
+  });
+  
+  const astAnalyzer = new ASTAnalyzer();
 
   // Auto-detect spec and implementation paths
   const specPath = options.specPath || await autoDetectSpecPath(baseDir, type, identifier);
@@ -290,6 +489,10 @@ async function handleUniversalCompliance(
     };
   }
 
+  console.log(`🔍 Running enhanced compliance check for ${type}: ${identifier}...`);
+  console.log(`   📋 Spec: ${specPath}`);
+  console.log(`   📄 Implementation: ${implementationPath}`);
+
   // Load spec and implementation
   const spec = await loadArtifactSpec(specPath);
   const implementation = await loadImplementation(implementationPath, type);
@@ -299,25 +502,106 @@ async function handleUniversalCompliance(
   
   // Get compliance checker and run check
   const checker = ComplianceCheckerFactory.create(type);
-  const result = await checker.checkCompliance(spec, implementation, context);
+  const complianceResult = await checker.checkCompliance(spec, implementation, context);
+
+  console.log(`   ✅ Compliance check completed: ${(complianceResult.score * 100).toFixed(1)}% score`);
+
+  // Run AST analysis if implementation is a code file
+  let astResult;
+  if (isCodeFile(implementationPath)) {
+    console.log(`🌳 Analyzing AST structure...`);
+    try {
+      astResult = await astAnalyzer.analyzeFile(implementationPath, spec);
+      console.log(`   ✅ AST analysis completed: ${astResult.summary.totalNodes} nodes analyzed`);
+      console.log(`   🔍 Hallucinations detected: ${astResult.summary.hallucinationCount}`);
+    } catch (error: any) {
+      console.warn(`⚠️  AST analysis failed: ${error.message}`);
+    }
+  }
+
+  // Save results with AST information
+  console.log(`💾 Saving compliance results...`);
+  const resultId = await storage.saveComplianceResult(
+    complianceResult,
+    astResult,
+    {
+      projectPath: baseDir,
+      artifactType: type,
+      identifier,
+      specPath,
+      implementationPath
+    }
+  );
+  console.log(`   ✅ Results saved with ID: ${resultId}`);
+
+  // Generate detailed report
+  console.log(`📊 Generating compliance report...`);
+  const detailedReport = await storage.generateComplianceReport(type, identifier, true);
+
+  // Prepare enhanced response
+  const response: any = {
+    type: `${type}_compliance_enhanced`,
+    result: complianceResult,
+    astAnalysis: astResult ? {
+      summary: astResult.summary,
+      indentedTree: astResult.indentedTree,
+      hallucinationCount: astResult.summary.hallucinationCount,
+      complianceBreakdown: {
+        compliantNodes: astResult.summary.compliantNodes,
+        nonCompliantNodes: astResult.summary.nonCompliantNodes,
+        warningNodes: astResult.summary.warningNodes,
+        totalNodes: astResult.summary.totalNodes
+      }
+    } : null,
+    storage: {
+      resultId,
+      saved: true,
+      storageLocation: path.join(baseDir, '.carrot', 'compliance')
+    },
+    summary: ComplianceUtils.generateSummary(complianceResult),
+    actionableSteps: generateUniversalActionableSteps(complianceResult),
+    dimensions: Object.entries(complianceResult.dimensions).map(([name, dim]) => ({
+      name: dim.name,
+      score: `${(dim.score * 100).toFixed(1)}%`,
+      status: dim.isCompliant ? '✅' : '❌',
+      issues: dim.issues.length,
+      weight: dim.weight
+    })),
+    detailedReport,
+    metadata: {
+      timestamp: new Date().toISOString(),
+      specPath,
+      implementationPath,
+      projectPath: baseDir,
+      carrotVersion: '1.0.0'
+    }
+  };
+
+  // Add AST tree visualization to response
+  if (astResult) {
+    response.astVisualization = {
+      tree: astResult.indentedTree,
+      summary: `AST Analysis: ${astResult.summary.compliantNodes}/${astResult.summary.totalNodes} nodes compliant`,
+      hallucinations: astResult.summary.hallucinationCount > 0 ? 
+        `⚠️ ${astResult.summary.hallucinationCount} potential hallucinations detected` : 
+        '✅ No hallucinations detected'
+    };
+  }
 
   return {
     content: [{
       type: 'text',
-      text: JSON.stringify({
-        type: `${type}_compliance`,
-        result,
-        summary: ComplianceUtils.generateSummary(result),
-        actionableSteps: generateUniversalActionableSteps(result),
-        dimensions: Object.entries(result.dimensions).map(([name, dim]) => ({
-          name: dim.name,
-          score: `${(dim.score * 100).toFixed(1)}%`,
-          status: dim.isCompliant ? '✅' : '❌',
-          issues: dim.issues.length
-        }))
-      }, null, 2)
+      text: JSON.stringify(response, null, 2)
     }]
   };
+}
+
+/**
+ * Check if file is a code file that can be analyzed with AST
+ */
+function isCodeFile(filePath: string): boolean {
+  const codeExtensions = ['.ts', '.js', '.tsx', '.jsx', '.py', '.go', '.rs'];
+  return codeExtensions.some(ext => filePath.endsWith(ext));
 }
 
 /**

@@ -1,0 +1,1891 @@
+{
+  "id": "ui-ihdpro-2025-05-28T19-41-25-221Z",
+  "timestamp": "2025-05-28T19:41:25.222Z",
+  "projectPath": "/Users/raramuri/Projects/carrot-ai-pm",
+  "artifactType": "ui",
+  "identifier": "UserCard",
+  "specPath": "specs/ui/user-card.yaml",
+  "implementationPath": "test-user-card.tsx",
+  "complianceResult": {
+    "isCompliant": false,
+    "score": 0.65,
+    "issues": [
+      {
+        "type": "MISSING_DOCUMENTATION",
+        "severity": "warning",
+        "message": "Function processUser lacks documentation",
+        "suggestion": "Add JSDoc comments to document the function"
+      },
+      {
+        "type": "MISSING_ERROR_HANDLING",
+        "severity": "error",
+        "message": "Async operations lack error handling",
+        "suggestion": "Wrap async calls in try-catch blocks"
+      }
+    ],
+    "suggestions": [
+      {
+        "type": "ADD_DOCUMENTATION",
+        "description": "Add JSDoc documentation for all functions",
+        "code": "/** * Process user data * @param user - User object * @returns Processed user name */",
+        "autoFixable": false,
+        "priority": "medium"
+      }
+    ],
+    "dimensions": {
+      "documentation": {
+        "name": "Documentation Compliance",
+        "score": 0.5,
+        "isCompliant": false,
+        "issues": [
+          {
+            "type": "MISSING_DOCUMENTATION",
+            "severity": "warning",
+            "message": "Function processUser lacks documentation",
+            "suggestion": "Add JSDoc comments"
+          }
+        ],
+        "weight": 1
+      },
+      "error_handling": {
+        "name": "Error Handling Compliance",
+        "score": 0.3,
+        "isCompliant": false,
+        "issues": [
+          {
+            "type": "MISSING_ERROR_HANDLING",
+            "severity": "error",
+            "message": "Missing error handling",
+            "suggestion": "Add try-catch blocks"
+          }
+        ],
+        "weight": 2
+      }
+    },
+    "metadata": {
+      "artifactType": "ui",
+      "identifier": "UserCard",
+      "checkedAt": "2025-05-28T19:41:25.221Z",
+      "checkDuration": 150,
+      "version": "1.0.0"
+    }
+  },
+  "astResult": {
+    "tree": {
+      "type": "SourceFile",
+      "children": [
+        {
+          "type": "ImportDeclaration",
+          "children": [
+            {
+              "type": "ImportClause",
+              "children": [
+                {
+                  "type": "Identifier",
+                  "name": "React",
+                  "children": [],
+                  "location": {
+                    "line": 2,
+                    "column": 8,
+                    "endLine": 2,
+                    "endColumn": 13
+                  },
+                  "compliance": {
+                    "status": "compliant",
+                    "badge": "✅",
+                    "issues": [],
+                    "suggestions": [],
+                    "hallucinations": []
+                  },
+                  "metadata": {}
+                }
+              ],
+              "location": {
+                "line": 2,
+                "column": 8,
+                "endLine": 2,
+                "endColumn": 13
+              },
+              "compliance": {
+                "status": "compliant",
+                "badge": "✅",
+                "issues": [],
+                "suggestions": [],
+                "hallucinations": []
+              },
+              "metadata": {}
+            },
+            {
+              "type": "StringLiteral",
+              "children": [],
+              "location": {
+                "line": 2,
+                "column": 19,
+                "endLine": 2,
+                "endColumn": 26
+              },
+              "compliance": {
+                "status": "compliant",
+                "badge": "✅",
+                "issues": [],
+                "suggestions": [],
+                "hallucinations": []
+              },
+              "metadata": {}
+            }
+          ],
+          "location": {
+            "line": 2,
+            "column": 1,
+            "endLine": 2,
+            "endColumn": 27
+          },
+          "compliance": {
+            "status": "compliant",
+            "badge": "✅",
+            "issues": [],
+            "suggestions": [],
+            "hallucinations": []
+          },
+          "metadata": {}
+        },
+        {
+          "type": "InterfaceDeclaration",
+          "children": [
+            {
+              "type": "Identifier",
+              "name": "UserProps",
+              "children": [],
+              "location": {
+                "line": 4,
+                "column": 11,
+                "endLine": 4,
+                "endColumn": 20
+              },
+              "compliance": {
+                "status": "compliant",
+                "badge": "✅",
+                "issues": [],
+                "suggestions": [],
+                "hallucinations": []
+              },
+              "metadata": {}
+            },
+            {
+              "type": "PropertySignature",
+              "children": [
+                {
+                  "type": "Identifier",
+                  "name": "name",
+                  "children": [],
+                  "location": {
+                    "line": 5,
+                    "column": 3,
+                    "endLine": 5,
+                    "endColumn": 7
+                  },
+                  "compliance": {
+                    "status": "compliant",
+                    "badge": "✅",
+                    "issues": [],
+                    "suggestions": [],
+                    "hallucinations": []
+                  },
+                  "metadata": {}
+                },
+                {
+                  "type": "StringKeyword",
+                  "children": [],
+                  "location": {
+                    "line": 5,
+                    "column": 9,
+                    "endLine": 5,
+                    "endColumn": 15
+                  },
+                  "compliance": {
+                    "status": "compliant",
+                    "badge": "✅",
+                    "issues": [],
+                    "suggestions": [],
+                    "hallucinations": []
+                  },
+                  "metadata": {}
+                }
+              ],
+              "location": {
+                "line": 5,
+                "column": 3,
+                "endLine": 5,
+                "endColumn": 16
+              },
+              "compliance": {
+                "status": "compliant",
+                "badge": "✅",
+                "issues": [],
+                "suggestions": [],
+                "hallucinations": []
+              },
+              "metadata": {}
+            },
+            {
+              "type": "PropertySignature",
+              "children": [
+                {
+                  "type": "Identifier",
+                  "name": "email",
+                  "children": [],
+                  "location": {
+                    "line": 6,
+                    "column": 3,
+                    "endLine": 6,
+                    "endColumn": 8
+                  },
+                  "compliance": {
+                    "status": "compliant",
+                    "badge": "✅",
+                    "issues": [],
+                    "suggestions": [],
+                    "hallucinations": []
+                  },
+                  "metadata": {}
+                },
+                {
+                  "type": "StringKeyword",
+                  "children": [],
+                  "location": {
+                    "line": 6,
+                    "column": 10,
+                    "endLine": 6,
+                    "endColumn": 16
+                  },
+                  "compliance": {
+                    "status": "compliant",
+                    "badge": "✅",
+                    "issues": [],
+                    "suggestions": [],
+                    "hallucinations": []
+                  },
+                  "metadata": {}
+                }
+              ],
+              "location": {
+                "line": 6,
+                "column": 3,
+                "endLine": 6,
+                "endColumn": 17
+              },
+              "compliance": {
+                "status": "compliant",
+                "badge": "✅",
+                "issues": [],
+                "suggestions": [],
+                "hallucinations": []
+              },
+              "metadata": {}
+            }
+          ],
+          "location": {
+            "line": 4,
+            "column": 1,
+            "endLine": 7,
+            "endColumn": 2
+          },
+          "compliance": {
+            "status": "compliant",
+            "badge": "✅",
+            "issues": [],
+            "suggestions": [],
+            "hallucinations": []
+          },
+          "metadata": {}
+        },
+        {
+          "type": "FunctionDeclaration",
+          "name": "UserCard",
+          "children": [
+            {
+              "type": "ExportKeyword",
+              "children": [],
+              "location": {
+                "line": 9,
+                "column": 1,
+                "endLine": 9,
+                "endColumn": 7
+              },
+              "compliance": {
+                "status": "compliant",
+                "badge": "✅",
+                "issues": [],
+                "suggestions": [],
+                "hallucinations": []
+              },
+              "metadata": {}
+            },
+            {
+              "type": "Identifier",
+              "name": "UserCard",
+              "children": [],
+              "location": {
+                "line": 9,
+                "column": 17,
+                "endLine": 9,
+                "endColumn": 25
+              },
+              "compliance": {
+                "status": "compliant",
+                "badge": "✅",
+                "issues": [],
+                "suggestions": [],
+                "hallucinations": []
+              },
+              "metadata": {}
+            },
+            {
+              "type": "Parameter",
+              "children": [
+                {
+                  "type": "ObjectBindingPattern",
+                  "children": [
+                    {
+                      "type": "BindingElement",
+                      "children": [
+                        {
+                          "type": "Identifier",
+                          "name": "name",
+                          "children": [],
+                          "location": {
+                            "line": 9,
+                            "column": 28,
+                            "endLine": 9,
+                            "endColumn": 32
+                          },
+                          "compliance": {
+                            "status": "compliant",
+                            "badge": "✅",
+                            "issues": [],
+                            "suggestions": [],
+                            "hallucinations": []
+                          },
+                          "metadata": {}
+                        }
+                      ],
+                      "location": {
+                        "line": 9,
+                        "column": 28,
+                        "endLine": 9,
+                        "endColumn": 32
+                      },
+                      "compliance": {
+                        "status": "compliant",
+                        "badge": "✅",
+                        "issues": [],
+                        "suggestions": [],
+                        "hallucinations": []
+                      },
+                      "metadata": {}
+                    },
+                    {
+                      "type": "BindingElement",
+                      "children": [
+                        {
+                          "type": "Identifier",
+                          "name": "email",
+                          "children": [],
+                          "location": {
+                            "line": 9,
+                            "column": 34,
+                            "endLine": 9,
+                            "endColumn": 39
+                          },
+                          "compliance": {
+                            "status": "compliant",
+                            "badge": "✅",
+                            "issues": [],
+                            "suggestions": [],
+                            "hallucinations": []
+                          },
+                          "metadata": {}
+                        }
+                      ],
+                      "location": {
+                        "line": 9,
+                        "column": 34,
+                        "endLine": 9,
+                        "endColumn": 39
+                      },
+                      "compliance": {
+                        "status": "compliant",
+                        "badge": "✅",
+                        "issues": [],
+                        "suggestions": [],
+                        "hallucinations": []
+                      },
+                      "metadata": {}
+                    }
+                  ],
+                  "location": {
+                    "line": 9,
+                    "column": 26,
+                    "endLine": 9,
+                    "endColumn": 41
+                  },
+                  "compliance": {
+                    "status": "compliant",
+                    "badge": "✅",
+                    "issues": [],
+                    "suggestions": [],
+                    "hallucinations": []
+                  },
+                  "metadata": {}
+                },
+                {
+                  "type": "TypeReference",
+                  "children": [
+                    {
+                      "type": "Identifier",
+                      "name": "UserProps",
+                      "children": [],
+                      "location": {
+                        "line": 9,
+                        "column": 43,
+                        "endLine": 9,
+                        "endColumn": 52
+                      },
+                      "compliance": {
+                        "status": "compliant",
+                        "badge": "✅",
+                        "issues": [],
+                        "suggestions": [],
+                        "hallucinations": []
+                      },
+                      "metadata": {}
+                    }
+                  ],
+                  "location": {
+                    "line": 9,
+                    "column": 43,
+                    "endLine": 9,
+                    "endColumn": 52
+                  },
+                  "compliance": {
+                    "status": "compliant",
+                    "badge": "✅",
+                    "issues": [],
+                    "suggestions": [],
+                    "hallucinations": []
+                  },
+                  "metadata": {}
+                }
+              ],
+              "location": {
+                "line": 9,
+                "column": 26,
+                "endLine": 9,
+                "endColumn": 52
+              },
+              "compliance": {
+                "status": "compliant",
+                "badge": "✅",
+                "issues": [],
+                "suggestions": [],
+                "hallucinations": []
+              },
+              "metadata": {}
+            },
+            {
+              "type": "Block",
+              "children": [
+                {
+                  "type": "FirstStatement",
+                  "children": [
+                    {
+                      "type": "VariableDeclarationList",
+                      "children": [
+                        {
+                          "type": "VariableDeclaration",
+                          "name": "userData",
+                          "children": [
+                            {
+                              "type": "Identifier",
+                              "name": "userData",
+                              "children": [],
+                              "location": {
+                                "line": 11,
+                                "column": 9,
+                                "endLine": 11,
+                                "endColumn": 17
+                              },
+                              "compliance": {
+                                "status": "compliant",
+                                "badge": "✅",
+                                "issues": [],
+                                "suggestions": [],
+                                "hallucinations": []
+                              },
+                              "metadata": {}
+                            },
+                            {
+                              "type": "CallExpression",
+                              "children": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "getUserData",
+                                  "children": [],
+                                  "location": {
+                                    "line": 11,
+                                    "column": 20,
+                                    "endLine": 11,
+                                    "endColumn": 31
+                                  },
+                                  "compliance": {
+                                    "status": "non-compliant",
+                                    "badge": "❌",
+                                    "issues": [],
+                                    "suggestions": [],
+                                    "hallucinations": [
+                                      {
+                                        "type": "undefined_reference",
+                                        "description": "'getUserData' is not defined",
+                                        "severity": "error",
+                                        "suggestion": "Define 'getUserData' or import it from the appropriate module"
+                                      }
+                                    ]
+                                  },
+                                  "metadata": {}
+                                }
+                              ],
+                              "location": {
+                                "line": 11,
+                                "column": 20,
+                                "endLine": 11,
+                                "endColumn": 33
+                              },
+                              "compliance": {
+                                "status": "non-compliant",
+                                "badge": "❌",
+                                "issues": [],
+                                "suggestions": [],
+                                "hallucinations": [
+                                  {
+                                    "type": "unknown_function",
+                                    "description": "Function 'getUserData' is not defined",
+                                    "severity": "error",
+                                    "suggestion": "Import or define function 'getUserData'"
+                                  }
+                                ]
+                              },
+                              "metadata": {}
+                            }
+                          ],
+                          "location": {
+                            "line": 11,
+                            "column": 9,
+                            "endLine": 11,
+                            "endColumn": 33
+                          },
+                          "compliance": {
+                            "status": "compliant",
+                            "badge": "✅",
+                            "issues": [],
+                            "suggestions": [],
+                            "hallucinations": []
+                          },
+                          "metadata": {
+                            "hasInitializer": true,
+                            "hasTypeAnnotation": false
+                          }
+                        }
+                      ],
+                      "location": {
+                        "line": 11,
+                        "column": 3,
+                        "endLine": 11,
+                        "endColumn": 33
+                      },
+                      "compliance": {
+                        "status": "compliant",
+                        "badge": "✅",
+                        "issues": [],
+                        "suggestions": [],
+                        "hallucinations": []
+                      },
+                      "metadata": {}
+                    }
+                  ],
+                  "location": {
+                    "line": 11,
+                    "column": 3,
+                    "endLine": 11,
+                    "endColumn": 34
+                  },
+                  "compliance": {
+                    "status": "compliant",
+                    "badge": "✅",
+                    "issues": [],
+                    "suggestions": [],
+                    "hallucinations": []
+                  },
+                  "metadata": {}
+                },
+                {
+                  "type": "ReturnStatement",
+                  "children": [
+                    {
+                      "type": "ParenthesizedExpression",
+                      "children": [
+                        {
+                          "type": "JsxElement",
+                          "children": [
+                            {
+                              "type": "JsxOpeningElement",
+                              "children": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "div",
+                                  "children": [],
+                                  "location": {
+                                    "line": 14,
+                                    "column": 6,
+                                    "endLine": 14,
+                                    "endColumn": 9
+                                  },
+                                  "compliance": {
+                                    "status": "non-compliant",
+                                    "badge": "❌",
+                                    "issues": [],
+                                    "suggestions": [],
+                                    "hallucinations": [
+                                      {
+                                        "type": "undefined_reference",
+                                        "description": "'div' is not defined",
+                                        "severity": "error",
+                                        "suggestion": "Define 'div' or import it from the appropriate module"
+                                      }
+                                    ]
+                                  },
+                                  "metadata": {}
+                                },
+                                {
+                                  "type": "JsxAttributes",
+                                  "children": [
+                                    {
+                                      "type": "JsxAttribute",
+                                      "children": [
+                                        {
+                                          "type": "Identifier",
+                                          "name": "className",
+                                          "children": [],
+                                          "location": {
+                                            "line": 14,
+                                            "column": 10,
+                                            "endLine": 14,
+                                            "endColumn": 19
+                                          },
+                                          "compliance": {
+                                            "status": "compliant",
+                                            "badge": "✅",
+                                            "issues": [],
+                                            "suggestions": [],
+                                            "hallucinations": []
+                                          },
+                                          "metadata": {}
+                                        },
+                                        {
+                                          "type": "StringLiteral",
+                                          "children": [],
+                                          "location": {
+                                            "line": 14,
+                                            "column": 20,
+                                            "endLine": 14,
+                                            "endColumn": 31
+                                          },
+                                          "compliance": {
+                                            "status": "compliant",
+                                            "badge": "✅",
+                                            "issues": [],
+                                            "suggestions": [],
+                                            "hallucinations": []
+                                          },
+                                          "metadata": {}
+                                        }
+                                      ],
+                                      "location": {
+                                        "line": 14,
+                                        "column": 10,
+                                        "endLine": 14,
+                                        "endColumn": 31
+                                      },
+                                      "compliance": {
+                                        "status": "compliant",
+                                        "badge": "✅",
+                                        "issues": [],
+                                        "suggestions": [],
+                                        "hallucinations": []
+                                      },
+                                      "metadata": {}
+                                    }
+                                  ],
+                                  "location": {
+                                    "line": 14,
+                                    "column": 10,
+                                    "endLine": 14,
+                                    "endColumn": 31
+                                  },
+                                  "compliance": {
+                                    "status": "compliant",
+                                    "badge": "✅",
+                                    "issues": [],
+                                    "suggestions": [],
+                                    "hallucinations": []
+                                  },
+                                  "metadata": {}
+                                }
+                              ],
+                              "location": {
+                                "line": 14,
+                                "column": 5,
+                                "endLine": 14,
+                                "endColumn": 32
+                              },
+                              "compliance": {
+                                "status": "compliant",
+                                "badge": "✅",
+                                "issues": [],
+                                "suggestions": [],
+                                "hallucinations": []
+                              },
+                              "metadata": {}
+                            },
+                            {
+                              "type": "JsxText",
+                              "children": [],
+                              "location": {
+                                "line": 15,
+                                "column": 7,
+                                "endLine": 15,
+                                "endColumn": 7
+                              },
+                              "compliance": {
+                                "status": "compliant",
+                                "badge": "✅",
+                                "issues": [],
+                                "suggestions": [],
+                                "hallucinations": []
+                              },
+                              "metadata": {}
+                            },
+                            {
+                              "type": "JsxElement",
+                              "children": [
+                                {
+                                  "type": "JsxOpeningElement",
+                                  "children": [
+                                    {
+                                      "type": "Identifier",
+                                      "name": "h2",
+                                      "children": [],
+                                      "location": {
+                                        "line": 15,
+                                        "column": 8,
+                                        "endLine": 15,
+                                        "endColumn": 10
+                                      },
+                                      "compliance": {
+                                        "status": "non-compliant",
+                                        "badge": "❌",
+                                        "issues": [],
+                                        "suggestions": [],
+                                        "hallucinations": [
+                                          {
+                                            "type": "undefined_reference",
+                                            "description": "'h2' is not defined",
+                                            "severity": "error",
+                                            "suggestion": "Define 'h2' or import it from the appropriate module"
+                                          }
+                                        ]
+                                      },
+                                      "metadata": {}
+                                    },
+                                    {
+                                      "type": "JsxAttributes",
+                                      "children": [],
+                                      "location": {
+                                        "line": 15,
+                                        "column": 10,
+                                        "endLine": 15,
+                                        "endColumn": 10
+                                      },
+                                      "compliance": {
+                                        "status": "compliant",
+                                        "badge": "✅",
+                                        "issues": [],
+                                        "suggestions": [],
+                                        "hallucinations": []
+                                      },
+                                      "metadata": {}
+                                    }
+                                  ],
+                                  "location": {
+                                    "line": 15,
+                                    "column": 7,
+                                    "endLine": 15,
+                                    "endColumn": 11
+                                  },
+                                  "compliance": {
+                                    "status": "compliant",
+                                    "badge": "✅",
+                                    "issues": [],
+                                    "suggestions": [],
+                                    "hallucinations": []
+                                  },
+                                  "metadata": {}
+                                },
+                                {
+                                  "type": "JsxExpression",
+                                  "children": [
+                                    {
+                                      "type": "Identifier",
+                                      "name": "name",
+                                      "children": [],
+                                      "location": {
+                                        "line": 15,
+                                        "column": 12,
+                                        "endLine": 15,
+                                        "endColumn": 16
+                                      },
+                                      "compliance": {
+                                        "status": "compliant",
+                                        "badge": "✅",
+                                        "issues": [],
+                                        "suggestions": [],
+                                        "hallucinations": []
+                                      },
+                                      "metadata": {}
+                                    }
+                                  ],
+                                  "location": {
+                                    "line": 15,
+                                    "column": 11,
+                                    "endLine": 15,
+                                    "endColumn": 17
+                                  },
+                                  "compliance": {
+                                    "status": "compliant",
+                                    "badge": "✅",
+                                    "issues": [],
+                                    "suggestions": [],
+                                    "hallucinations": []
+                                  },
+                                  "metadata": {}
+                                },
+                                {
+                                  "type": "JsxClosingElement",
+                                  "children": [
+                                    {
+                                      "type": "Identifier",
+                                      "name": "h2",
+                                      "children": [],
+                                      "location": {
+                                        "line": 15,
+                                        "column": 19,
+                                        "endLine": 15,
+                                        "endColumn": 21
+                                      },
+                                      "compliance": {
+                                        "status": "non-compliant",
+                                        "badge": "❌",
+                                        "issues": [],
+                                        "suggestions": [],
+                                        "hallucinations": [
+                                          {
+                                            "type": "undefined_reference",
+                                            "description": "'h2' is not defined",
+                                            "severity": "error",
+                                            "suggestion": "Define 'h2' or import it from the appropriate module"
+                                          }
+                                        ]
+                                      },
+                                      "metadata": {}
+                                    }
+                                  ],
+                                  "location": {
+                                    "line": 15,
+                                    "column": 17,
+                                    "endLine": 15,
+                                    "endColumn": 22
+                                  },
+                                  "compliance": {
+                                    "status": "compliant",
+                                    "badge": "✅",
+                                    "issues": [],
+                                    "suggestions": [],
+                                    "hallucinations": []
+                                  },
+                                  "metadata": {}
+                                }
+                              ],
+                              "location": {
+                                "line": 15,
+                                "column": 7,
+                                "endLine": 15,
+                                "endColumn": 22
+                              },
+                              "compliance": {
+                                "status": "compliant",
+                                "badge": "✅",
+                                "issues": [],
+                                "suggestions": [],
+                                "hallucinations": []
+                              },
+                              "metadata": {}
+                            },
+                            {
+                              "type": "JsxText",
+                              "children": [],
+                              "location": {
+                                "line": 16,
+                                "column": 7,
+                                "endLine": 16,
+                                "endColumn": 7
+                              },
+                              "compliance": {
+                                "status": "compliant",
+                                "badge": "✅",
+                                "issues": [],
+                                "suggestions": [],
+                                "hallucinations": []
+                              },
+                              "metadata": {}
+                            },
+                            {
+                              "type": "JsxElement",
+                              "children": [
+                                {
+                                  "type": "JsxOpeningElement",
+                                  "children": [
+                                    {
+                                      "type": "Identifier",
+                                      "name": "p",
+                                      "children": [],
+                                      "location": {
+                                        "line": 16,
+                                        "column": 8,
+                                        "endLine": 16,
+                                        "endColumn": 9
+                                      },
+                                      "compliance": {
+                                        "status": "non-compliant",
+                                        "badge": "❌",
+                                        "issues": [],
+                                        "suggestions": [],
+                                        "hallucinations": [
+                                          {
+                                            "type": "undefined_reference",
+                                            "description": "'p' is not defined",
+                                            "severity": "error",
+                                            "suggestion": "Define 'p' or import it from the appropriate module"
+                                          }
+                                        ]
+                                      },
+                                      "metadata": {}
+                                    },
+                                    {
+                                      "type": "JsxAttributes",
+                                      "children": [],
+                                      "location": {
+                                        "line": 16,
+                                        "column": 9,
+                                        "endLine": 16,
+                                        "endColumn": 9
+                                      },
+                                      "compliance": {
+                                        "status": "compliant",
+                                        "badge": "✅",
+                                        "issues": [],
+                                        "suggestions": [],
+                                        "hallucinations": []
+                                      },
+                                      "metadata": {}
+                                    }
+                                  ],
+                                  "location": {
+                                    "line": 16,
+                                    "column": 7,
+                                    "endLine": 16,
+                                    "endColumn": 10
+                                  },
+                                  "compliance": {
+                                    "status": "compliant",
+                                    "badge": "✅",
+                                    "issues": [],
+                                    "suggestions": [],
+                                    "hallucinations": []
+                                  },
+                                  "metadata": {}
+                                },
+                                {
+                                  "type": "JsxExpression",
+                                  "children": [
+                                    {
+                                      "type": "Identifier",
+                                      "name": "email",
+                                      "children": [],
+                                      "location": {
+                                        "line": 16,
+                                        "column": 11,
+                                        "endLine": 16,
+                                        "endColumn": 16
+                                      },
+                                      "compliance": {
+                                        "status": "compliant",
+                                        "badge": "✅",
+                                        "issues": [],
+                                        "suggestions": [],
+                                        "hallucinations": []
+                                      },
+                                      "metadata": {}
+                                    }
+                                  ],
+                                  "location": {
+                                    "line": 16,
+                                    "column": 10,
+                                    "endLine": 16,
+                                    "endColumn": 17
+                                  },
+                                  "compliance": {
+                                    "status": "compliant",
+                                    "badge": "✅",
+                                    "issues": [],
+                                    "suggestions": [],
+                                    "hallucinations": []
+                                  },
+                                  "metadata": {}
+                                },
+                                {
+                                  "type": "JsxClosingElement",
+                                  "children": [
+                                    {
+                                      "type": "Identifier",
+                                      "name": "p",
+                                      "children": [],
+                                      "location": {
+                                        "line": 16,
+                                        "column": 19,
+                                        "endLine": 16,
+                                        "endColumn": 20
+                                      },
+                                      "compliance": {
+                                        "status": "non-compliant",
+                                        "badge": "❌",
+                                        "issues": [],
+                                        "suggestions": [],
+                                        "hallucinations": [
+                                          {
+                                            "type": "undefined_reference",
+                                            "description": "'p' is not defined",
+                                            "severity": "error",
+                                            "suggestion": "Define 'p' or import it from the appropriate module"
+                                          }
+                                        ]
+                                      },
+                                      "metadata": {}
+                                    }
+                                  ],
+                                  "location": {
+                                    "line": 16,
+                                    "column": 17,
+                                    "endLine": 16,
+                                    "endColumn": 21
+                                  },
+                                  "compliance": {
+                                    "status": "compliant",
+                                    "badge": "✅",
+                                    "issues": [],
+                                    "suggestions": [],
+                                    "hallucinations": []
+                                  },
+                                  "metadata": {}
+                                }
+                              ],
+                              "location": {
+                                "line": 16,
+                                "column": 7,
+                                "endLine": 16,
+                                "endColumn": 21
+                              },
+                              "compliance": {
+                                "status": "compliant",
+                                "badge": "✅",
+                                "issues": [],
+                                "suggestions": [],
+                                "hallucinations": []
+                              },
+                              "metadata": {}
+                            },
+                            {
+                              "type": "JsxText",
+                              "children": [],
+                              "location": {
+                                "line": 17,
+                                "column": 7,
+                                "endLine": 17,
+                                "endColumn": 7
+                              },
+                              "compliance": {
+                                "status": "compliant",
+                                "badge": "✅",
+                                "issues": [],
+                                "suggestions": [],
+                                "hallucinations": []
+                              },
+                              "metadata": {}
+                            },
+                            {
+                              "type": "JsxElement",
+                              "children": [
+                                {
+                                  "type": "JsxOpeningElement",
+                                  "children": [
+                                    {
+                                      "type": "Identifier",
+                                      "name": "p",
+                                      "children": [],
+                                      "location": {
+                                        "line": 17,
+                                        "column": 8,
+                                        "endLine": 17,
+                                        "endColumn": 9
+                                      },
+                                      "compliance": {
+                                        "status": "non-compliant",
+                                        "badge": "❌",
+                                        "issues": [],
+                                        "suggestions": [],
+                                        "hallucinations": [
+                                          {
+                                            "type": "undefined_reference",
+                                            "description": "'p' is not defined",
+                                            "severity": "error",
+                                            "suggestion": "Define 'p' or import it from the appropriate module"
+                                          }
+                                        ]
+                                      },
+                                      "metadata": {}
+                                    },
+                                    {
+                                      "type": "JsxAttributes",
+                                      "children": [],
+                                      "location": {
+                                        "line": 17,
+                                        "column": 9,
+                                        "endLine": 17,
+                                        "endColumn": 9
+                                      },
+                                      "compliance": {
+                                        "status": "compliant",
+                                        "badge": "✅",
+                                        "issues": [],
+                                        "suggestions": [],
+                                        "hallucinations": []
+                                      },
+                                      "metadata": {}
+                                    }
+                                  ],
+                                  "location": {
+                                    "line": 17,
+                                    "column": 7,
+                                    "endLine": 17,
+                                    "endColumn": 10
+                                  },
+                                  "compliance": {
+                                    "status": "compliant",
+                                    "badge": "✅",
+                                    "issues": [],
+                                    "suggestions": [],
+                                    "hallucinations": []
+                                  },
+                                  "metadata": {}
+                                },
+                                {
+                                  "type": "JsxExpression",
+                                  "children": [
+                                    {
+                                      "type": "PropertyAccessExpression",
+                                      "children": [
+                                        {
+                                          "type": "Identifier",
+                                          "name": "userData",
+                                          "children": [],
+                                          "location": {
+                                            "line": 17,
+                                            "column": 11,
+                                            "endLine": 17,
+                                            "endColumn": 19
+                                          },
+                                          "compliance": {
+                                            "status": "compliant",
+                                            "badge": "✅",
+                                            "issues": [],
+                                            "suggestions": [],
+                                            "hallucinations": []
+                                          },
+                                          "metadata": {}
+                                        },
+                                        {
+                                          "type": "Identifier",
+                                          "name": "cache",
+                                          "children": [],
+                                          "location": {
+                                            "line": 17,
+                                            "column": 20,
+                                            "endLine": 17,
+                                            "endColumn": 25
+                                          },
+                                          "compliance": {
+                                            "status": "non-compliant",
+                                            "badge": "❌",
+                                            "issues": [],
+                                            "suggestions": [],
+                                            "hallucinations": [
+                                              {
+                                                "type": "undefined_reference",
+                                                "description": "'cache' is not defined",
+                                                "severity": "error",
+                                                "suggestion": "Define 'cache' or import it from the appropriate module"
+                                              }
+                                            ]
+                                          },
+                                          "metadata": {}
+                                        }
+                                      ],
+                                      "location": {
+                                        "line": 17,
+                                        "column": 11,
+                                        "endLine": 17,
+                                        "endColumn": 25
+                                      },
+                                      "compliance": {
+                                        "status": "non-compliant",
+                                        "badge": "❌",
+                                        "issues": [],
+                                        "suggestions": [],
+                                        "hallucinations": [
+                                          {
+                                            "type": "invalid_property",
+                                            "description": "Property 'cache' does not exist",
+                                            "severity": "warning",
+                                            "suggestion": "Check if property 'cache' exists or use a different property"
+                                          }
+                                        ]
+                                      },
+                                      "metadata": {}
+                                    }
+                                  ],
+                                  "location": {
+                                    "line": 17,
+                                    "column": 10,
+                                    "endLine": 17,
+                                    "endColumn": 26
+                                  },
+                                  "compliance": {
+                                    "status": "compliant",
+                                    "badge": "✅",
+                                    "issues": [],
+                                    "suggestions": [],
+                                    "hallucinations": []
+                                  },
+                                  "metadata": {}
+                                },
+                                {
+                                  "type": "JsxClosingElement",
+                                  "children": [
+                                    {
+                                      "type": "Identifier",
+                                      "name": "p",
+                                      "children": [],
+                                      "location": {
+                                        "line": 17,
+                                        "column": 28,
+                                        "endLine": 17,
+                                        "endColumn": 29
+                                      },
+                                      "compliance": {
+                                        "status": "non-compliant",
+                                        "badge": "❌",
+                                        "issues": [],
+                                        "suggestions": [],
+                                        "hallucinations": [
+                                          {
+                                            "type": "undefined_reference",
+                                            "description": "'p' is not defined",
+                                            "severity": "error",
+                                            "suggestion": "Define 'p' or import it from the appropriate module"
+                                          }
+                                        ]
+                                      },
+                                      "metadata": {}
+                                    }
+                                  ],
+                                  "location": {
+                                    "line": 17,
+                                    "column": 26,
+                                    "endLine": 17,
+                                    "endColumn": 30
+                                  },
+                                  "compliance": {
+                                    "status": "compliant",
+                                    "badge": "✅",
+                                    "issues": [],
+                                    "suggestions": [],
+                                    "hallucinations": []
+                                  },
+                                  "metadata": {}
+                                }
+                              ],
+                              "location": {
+                                "line": 17,
+                                "column": 7,
+                                "endLine": 17,
+                                "endColumn": 30
+                              },
+                              "compliance": {
+                                "status": "compliant",
+                                "badge": "✅",
+                                "issues": [],
+                                "suggestions": [],
+                                "hallucinations": []
+                              },
+                              "metadata": {}
+                            },
+                            {
+                              "type": "JsxText",
+                              "children": [],
+                              "location": {
+                                "line": 17,
+                                "column": 31,
+                                "endLine": 17,
+                                "endColumn": 31
+                              },
+                              "compliance": {
+                                "status": "compliant",
+                                "badge": "✅",
+                                "issues": [],
+                                "suggestions": [],
+                                "hallucinations": []
+                              },
+                              "metadata": {}
+                            },
+                            {
+                              "type": "JsxExpression",
+                              "children": [],
+                              "location": {
+                                "line": 17,
+                                "column": 31,
+                                "endLine": 17,
+                                "endColumn": 89
+                              },
+                              "compliance": {
+                                "status": "compliant",
+                                "badge": "✅",
+                                "issues": [],
+                                "suggestions": [],
+                                "hallucinations": []
+                              },
+                              "metadata": {}
+                            },
+                            {
+                              "type": "JsxText",
+                              "children": [],
+                              "location": {
+                                "line": 18,
+                                "column": 5,
+                                "endLine": 18,
+                                "endColumn": 5
+                              },
+                              "compliance": {
+                                "status": "compliant",
+                                "badge": "✅",
+                                "issues": [],
+                                "suggestions": [],
+                                "hallucinations": []
+                              },
+                              "metadata": {}
+                            },
+                            {
+                              "type": "JsxClosingElement",
+                              "children": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "div",
+                                  "children": [],
+                                  "location": {
+                                    "line": 18,
+                                    "column": 7,
+                                    "endLine": 18,
+                                    "endColumn": 10
+                                  },
+                                  "compliance": {
+                                    "status": "non-compliant",
+                                    "badge": "❌",
+                                    "issues": [],
+                                    "suggestions": [],
+                                    "hallucinations": [
+                                      {
+                                        "type": "undefined_reference",
+                                        "description": "'div' is not defined",
+                                        "severity": "error",
+                                        "suggestion": "Define 'div' or import it from the appropriate module"
+                                      }
+                                    ]
+                                  },
+                                  "metadata": {}
+                                }
+                              ],
+                              "location": {
+                                "line": 18,
+                                "column": 5,
+                                "endLine": 18,
+                                "endColumn": 11
+                              },
+                              "compliance": {
+                                "status": "compliant",
+                                "badge": "✅",
+                                "issues": [],
+                                "suggestions": [],
+                                "hallucinations": []
+                              },
+                              "metadata": {}
+                            }
+                          ],
+                          "location": {
+                            "line": 14,
+                            "column": 5,
+                            "endLine": 18,
+                            "endColumn": 11
+                          },
+                          "compliance": {
+                            "status": "compliant",
+                            "badge": "✅",
+                            "issues": [],
+                            "suggestions": [],
+                            "hallucinations": []
+                          },
+                          "metadata": {}
+                        }
+                      ],
+                      "location": {
+                        "line": 13,
+                        "column": 10,
+                        "endLine": 19,
+                        "endColumn": 4
+                      },
+                      "compliance": {
+                        "status": "compliant",
+                        "badge": "✅",
+                        "issues": [],
+                        "suggestions": [],
+                        "hallucinations": []
+                      },
+                      "metadata": {}
+                    }
+                  ],
+                  "location": {
+                    "line": 13,
+                    "column": 3,
+                    "endLine": 19,
+                    "endColumn": 5
+                  },
+                  "compliance": {
+                    "status": "compliant",
+                    "badge": "✅",
+                    "issues": [],
+                    "suggestions": [],
+                    "hallucinations": []
+                  },
+                  "metadata": {}
+                }
+              ],
+              "location": {
+                "line": 9,
+                "column": 54,
+                "endLine": 20,
+                "endColumn": 2
+              },
+              "compliance": {
+                "status": "compliant",
+                "badge": "✅",
+                "issues": [],
+                "suggestions": [],
+                "hallucinations": []
+              },
+              "metadata": {}
+            }
+          ],
+          "location": {
+            "line": 9,
+            "column": 1,
+            "endLine": 20,
+            "endColumn": 2
+          },
+          "compliance": {
+            "status": "warning",
+            "badge": "⚠️",
+            "issues": [
+              {
+                "type": "MISSING_DOCUMENTATION",
+                "severity": "warning",
+                "message": "Function 'UserCard' lacks documentation",
+                "suggestion": "Add JSDoc comments to document the function"
+              },
+              {
+                "type": "MISSING_TYPE_ANNOTATION",
+                "severity": "info",
+                "message": "Function 'UserCard' lacks return type annotation",
+                "suggestion": "Add explicit return type annotation"
+              }
+            ],
+            "suggestions": [
+              "Add JSDoc documentation for function 'UserCard'"
+            ],
+            "hallucinations": []
+          },
+          "metadata": {
+            "parameterCount": 1,
+            "isAsync": false,
+            "isExported": true
+          }
+        },
+        {
+          "type": "FunctionDeclaration",
+          "name": "processUser",
+          "children": [
+            {
+              "type": "Identifier",
+              "name": "processUser",
+              "children": [],
+              "location": {
+                "line": 23,
+                "column": 10,
+                "endLine": 23,
+                "endColumn": 21
+              },
+              "compliance": {
+                "status": "compliant",
+                "badge": "✅",
+                "issues": [],
+                "suggestions": [],
+                "hallucinations": []
+              },
+              "metadata": {}
+            },
+            {
+              "type": "Parameter",
+              "children": [
+                {
+                  "type": "Identifier",
+                  "name": "user",
+                  "children": [],
+                  "location": {
+                    "line": 23,
+                    "column": 22,
+                    "endLine": 23,
+                    "endColumn": 26
+                  },
+                  "compliance": {
+                    "status": "compliant",
+                    "badge": "✅",
+                    "issues": [],
+                    "suggestions": [],
+                    "hallucinations": []
+                  },
+                  "metadata": {}
+                }
+              ],
+              "location": {
+                "line": 23,
+                "column": 22,
+                "endLine": 23,
+                "endColumn": 26
+              },
+              "compliance": {
+                "status": "compliant",
+                "badge": "✅",
+                "issues": [],
+                "suggestions": [],
+                "hallucinations": []
+              },
+              "metadata": {}
+            },
+            {
+              "type": "Block",
+              "children": [
+                {
+                  "type": "ReturnStatement",
+                  "children": [
+                    {
+                      "type": "CallExpression",
+                      "children": [
+                        {
+                          "type": "PropertyAccessExpression",
+                          "children": [
+                            {
+                              "type": "PropertyAccessExpression",
+                              "children": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "user",
+                                  "children": [],
+                                  "location": {
+                                    "line": 24,
+                                    "column": 10,
+                                    "endLine": 24,
+                                    "endColumn": 14
+                                  },
+                                  "compliance": {
+                                    "status": "compliant",
+                                    "badge": "✅",
+                                    "issues": [],
+                                    "suggestions": [],
+                                    "hallucinations": []
+                                  },
+                                  "metadata": {}
+                                },
+                                {
+                                  "type": "Identifier",
+                                  "name": "name",
+                                  "children": [],
+                                  "location": {
+                                    "line": 24,
+                                    "column": 15,
+                                    "endLine": 24,
+                                    "endColumn": 19
+                                  },
+                                  "compliance": {
+                                    "status": "non-compliant",
+                                    "badge": "❌",
+                                    "issues": [],
+                                    "suggestions": [],
+                                    "hallucinations": [
+                                      {
+                                        "type": "undefined_reference",
+                                        "description": "'name' is not defined",
+                                        "severity": "error",
+                                        "suggestion": "Define 'name' or import it from the appropriate module"
+                                      }
+                                    ]
+                                  },
+                                  "metadata": {}
+                                }
+                              ],
+                              "location": {
+                                "line": 24,
+                                "column": 10,
+                                "endLine": 24,
+                                "endColumn": 19
+                              },
+                              "compliance": {
+                                "status": "non-compliant",
+                                "badge": "❌",
+                                "issues": [],
+                                "suggestions": [],
+                                "hallucinations": [
+                                  {
+                                    "type": "invalid_property",
+                                    "description": "Property 'name' does not exist",
+                                    "severity": "warning",
+                                    "suggestion": "Check if property 'name' exists or use a different property"
+                                  }
+                                ]
+                              },
+                              "metadata": {}
+                            },
+                            {
+                              "type": "Identifier",
+                              "name": "toUpperCase",
+                              "children": [],
+                              "location": {
+                                "line": 24,
+                                "column": 20,
+                                "endLine": 24,
+                                "endColumn": 31
+                              },
+                              "compliance": {
+                                "status": "non-compliant",
+                                "badge": "❌",
+                                "issues": [],
+                                "suggestions": [],
+                                "hallucinations": [
+                                  {
+                                    "type": "undefined_reference",
+                                    "description": "'toUpperCase' is not defined",
+                                    "severity": "error",
+                                    "suggestion": "Define 'toUpperCase' or import it from the appropriate module"
+                                  }
+                                ]
+                              },
+                              "metadata": {}
+                            }
+                          ],
+                          "location": {
+                            "line": 24,
+                            "column": 10,
+                            "endLine": 24,
+                            "endColumn": 31
+                          },
+                          "compliance": {
+                            "status": "non-compliant",
+                            "badge": "❌",
+                            "issues": [],
+                            "suggestions": [],
+                            "hallucinations": [
+                              {
+                                "type": "invalid_property",
+                                "description": "Property 'toUpperCase' does not exist",
+                                "severity": "warning",
+                                "suggestion": "Check if property 'toUpperCase' exists or use a different property"
+                              }
+                            ]
+                          },
+                          "metadata": {}
+                        }
+                      ],
+                      "location": {
+                        "line": 24,
+                        "column": 10,
+                        "endLine": 24,
+                        "endColumn": 33
+                      },
+                      "compliance": {
+                        "status": "compliant",
+                        "badge": "✅",
+                        "issues": [],
+                        "suggestions": [],
+                        "hallucinations": []
+                      },
+                      "metadata": {}
+                    }
+                  ],
+                  "location": {
+                    "line": 24,
+                    "column": 3,
+                    "endLine": 24,
+                    "endColumn": 34
+                  },
+                  "compliance": {
+                    "status": "compliant",
+                    "badge": "✅",
+                    "issues": [],
+                    "suggestions": [],
+                    "hallucinations": []
+                  },
+                  "metadata": {}
+                }
+              ],
+              "location": {
+                "line": 23,
+                "column": 28,
+                "endLine": 25,
+                "endColumn": 2
+              },
+              "compliance": {
+                "status": "compliant",
+                "badge": "✅",
+                "issues": [],
+                "suggestions": [],
+                "hallucinations": []
+              },
+              "metadata": {}
+            }
+          ],
+          "location": {
+            "line": 23,
+            "column": 1,
+            "endLine": 25,
+            "endColumn": 2
+          },
+          "compliance": {
+            "status": "warning",
+            "badge": "⚠️",
+            "issues": [
+              {
+                "type": "MISSING_DOCUMENTATION",
+                "severity": "warning",
+                "message": "Function 'processUser' lacks documentation",
+                "suggestion": "Add JSDoc comments to document the function"
+              },
+              {
+                "type": "MISSING_VALIDATION",
+                "severity": "warning",
+                "message": "Function 'processUser' parameters lack validation",
+                "suggestion": "Add parameter validation to ensure type safety"
+              },
+              {
+                "type": "MISSING_TYPE_ANNOTATION",
+                "severity": "info",
+                "message": "Function 'processUser' lacks return type annotation",
+                "suggestion": "Add explicit return type annotation"
+              }
+            ],
+            "suggestions": [
+              "Add JSDoc documentation for function 'processUser'"
+            ],
+            "hallucinations": []
+          },
+          "metadata": {
+            "parameterCount": 1,
+            "isAsync": false,
+            "isExported": false
+          }
+        },
+        {
+          "type": "EndOfFileToken",
+          "children": [],
+          "location": {
+            "line": 26,
+            "column": 1,
+            "endLine": 26,
+            "endColumn": 1
+          },
+          "compliance": {
+            "status": "compliant",
+            "badge": "✅",
+            "issues": [],
+            "suggestions": [],
+            "hallucinations": []
+          },
+          "metadata": {}
+        }
+      ],
+      "location": {
+        "line": 2,
+        "column": 1,
+        "endLine": 26,
+        "endColumn": 1
+      },
+      "compliance": {
+        "status": "compliant",
+        "badge": "✅",
+        "issues": [],
+        "suggestions": [],
+        "hallucinations": []
+      },
+      "metadata": {}
+    },
+    "summary": {
+      "totalNodes": 87,
+      "compliantNodes": 69,
+      "nonCompliantNodes": 16,
+      "warningNodes": 2,
+      "unknownNodes": 0,
+      "hallucinationCount": 16
+    },
+    "indentedTree": "SourceFile [✅ COMPLIANT]\n  ├── ImportDeclaration [✅ COMPLIANT]\n    │   ├── ImportClause [✅ COMPLIANT]\n      │   ├── Identifier: React [✅ COMPLIANT]\n    │   ├── StringLiteral [✅ COMPLIANT]\n  ├── InterfaceDeclaration [✅ COMPLIANT]\n    │   ├── Identifier: UserProps [✅ COMPLIANT]\n    │   ├── PropertySignature [✅ COMPLIANT]\n      │   ├── Identifier: name [✅ COMPLIANT]\n      │   ├── StringKeyword [✅ COMPLIANT]\n    │   ├── PropertySignature [✅ COMPLIANT]\n      │   ├── Identifier: email [✅ COMPLIANT]\n      │   ├── StringKeyword [✅ COMPLIANT]\n  ├── FunctionDeclaration: UserCard [⚠️ WARNING]\n  │       └── Function 'UserCard' lacks documentation\n    │   ├── ExportKeyword [✅ COMPLIANT]\n    │   ├── Identifier: UserCard [✅ COMPLIANT]\n    │   ├── Parameter [✅ COMPLIANT]\n      │   ├── ObjectBindingPattern [✅ COMPLIANT]\n        │   ├── BindingElement [✅ COMPLIANT]\n          │   ├── Identifier: name [✅ COMPLIANT]\n        │   ├── BindingElement [✅ COMPLIANT]\n          │   ├── Identifier: email [✅ COMPLIANT]\n      │   ├── TypeReference [✅ COMPLIANT]\n        │   ├── Identifier: UserProps [✅ COMPLIANT]\n    │   ├── Block [✅ COMPLIANT]\n      │   ├── FirstStatement [✅ COMPLIANT]\n        │   ├── VariableDeclarationList [✅ COMPLIANT]\n          │   ├── VariableDeclaration: userData [✅ COMPLIANT]\n            │   ├── Identifier: userData [✅ COMPLIANT]\n            │   ├── CallExpression [❌ NON-COMPLIANT] [🔍 HALLUCINATED - unknown_function]\n              │   ├── Identifier: getUserData [❌ NON-COMPLIANT] [🔍 HALLUCINATED - undefined_reference]\n      │   ├── ReturnStatement [✅ COMPLIANT]\n        │   ├── ParenthesizedExpression [✅ COMPLIANT]\n          │   ├── JsxElement [✅ COMPLIANT]\n            │   ├── JsxOpeningElement [✅ COMPLIANT]\n              │   ├── Identifier: div [❌ NON-COMPLIANT] [🔍 HALLUCINATED - undefined_reference]\n              │   ├── JsxAttributes [✅ COMPLIANT]\n                │   ├── JsxAttribute [✅ COMPLIANT]\n                  │   ├── Identifier: className [✅ COMPLIANT]\n                  │   ├── StringLiteral [✅ COMPLIANT]\n            │   ├── JsxText [✅ COMPLIANT]\n            │   ├── JsxElement [✅ COMPLIANT]\n              │   ├── JsxOpeningElement [✅ COMPLIANT]\n                │   ├── Identifier: h2 [❌ NON-COMPLIANT] [🔍 HALLUCINATED - undefined_reference]\n                │   ├── JsxAttributes [✅ COMPLIANT]\n              │   ├── JsxExpression [✅ COMPLIANT]\n                │   ├── Identifier: name [✅ COMPLIANT]\n              │   ├── JsxClosingElement [✅ COMPLIANT]\n                │   ├── Identifier: h2 [❌ NON-COMPLIANT] [🔍 HALLUCINATED - undefined_reference]\n            │   ├── JsxText [✅ COMPLIANT]\n            │   ├── JsxElement [✅ COMPLIANT]\n              │   ├── JsxOpeningElement [✅ COMPLIANT]\n                │   ├── Identifier: p [❌ NON-COMPLIANT] [🔍 HALLUCINATED - undefined_reference]\n                │   ├── JsxAttributes [✅ COMPLIANT]\n              │   ├── JsxExpression [✅ COMPLIANT]\n                │   ├── Identifier: email [✅ COMPLIANT]\n              │   ├── JsxClosingElement [✅ COMPLIANT]\n                │   ├── Identifier: p [❌ NON-COMPLIANT] [🔍 HALLUCINATED - undefined_reference]\n            │   ├── JsxText [✅ COMPLIANT]\n            │   ├── JsxElement [✅ COMPLIANT]\n              │   ├── JsxOpeningElement [✅ COMPLIANT]\n                │   ├── Identifier: p [❌ NON-COMPLIANT] [🔍 HALLUCINATED - undefined_reference]\n                │   ├── JsxAttributes [✅ COMPLIANT]\n              │   ├── JsxExpression [✅ COMPLIANT]\n                │   ├── PropertyAccessExpression [❌ NON-COMPLIANT] [🔍 HALLUCINATED - invalid_property]\n                  │   ├── Identifier: userData [✅ COMPLIANT]\n                  │   ├── Identifier: cache [❌ NON-COMPLIANT] [🔍 HALLUCINATED - undefined_reference]\n              │   ├── JsxClosingElement [✅ COMPLIANT]\n                │   ├── Identifier: p [❌ NON-COMPLIANT] [🔍 HALLUCINATED - undefined_reference]\n            │   ├── JsxText [✅ COMPLIANT]\n            │   ├── JsxExpression [✅ COMPLIANT]\n            │   ├── JsxText [✅ COMPLIANT]\n            │   ├── JsxClosingElement [✅ COMPLIANT]\n              │   ├── Identifier: div [❌ NON-COMPLIANT] [🔍 HALLUCINATED - undefined_reference]\n  ├── FunctionDeclaration: processUser [⚠️ WARNING]\n  │       └── Function 'processUser' lacks documentation\n    │   ├── Identifier: processUser [✅ COMPLIANT]\n    │   ├── Parameter [✅ COMPLIANT]\n      │   ├── Identifier: user [✅ COMPLIANT]\n    │   ├── Block [✅ COMPLIANT]\n      │   ├── ReturnStatement [✅ COMPLIANT]\n        │   ├── CallExpression [✅ COMPLIANT]\n          │   ├── PropertyAccessExpression [❌ NON-COMPLIANT] [🔍 HALLUCINATED - invalid_property]\n            │   ├── PropertyAccessExpression [❌ NON-COMPLIANT] [🔍 HALLUCINATED - invalid_property]\n              │   ├── Identifier: user [✅ COMPLIANT]\n              │   ├── Identifier: name [❌ NON-COMPLIANT] [🔍 HALLUCINATED - undefined_reference]\n            │   ├── Identifier: toUpperCase [❌ NON-COMPLIANT] [🔍 HALLUCINATED - undefined_reference]\n  ├── EndOfFileToken [✅ COMPLIANT]",
+    "timestamp": "2025-05-28T19:41:25.220Z",
+    "filePath": "test-user-card.tsx"
+  },
+  "metadata": {
+    "version": "1.0.0",
+    "carrotVersion": "1.0.0",
+    "environment": "development"
+  }
+}

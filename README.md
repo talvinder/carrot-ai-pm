@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/talvinder-carrot-ai-pm-badge.png)](https://mseep.ai/app/talvinder-carrot-ai-pm)
+
 # 🥕 Carrot AI PM - Spec-Driven Development for AI Coding
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
